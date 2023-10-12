@@ -106,7 +106,7 @@ def train(model_num,ff_coefficient,phase,n_batch=None,condition="pretrain",direc
     position_loss.append(cartesian_loss.item())
 
     if (batch % interval == 0) and (batch != 0):
-      print("Batch {}/{} Done, mean policy loss: {}".format(batch, n_batch, sum(losses[-interval:])/interval))
+      print("Phase {}/{}, Batch {}/{} Done, mean policy loss: {}".format(phase,4,batch, n_batch, sum(losses[-interval:])/interval))
 
   # Save model
   weight_file = os.path.join(output_folder, f"{model_name}_phase={phase}_FFCoef={ff_coefficient}_weights")
