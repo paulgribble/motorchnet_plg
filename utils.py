@@ -158,10 +158,10 @@ def plot_learning(data_dir,num_model=10,w=1000,figsize=(6,10),init_phase=1):
     NF2_mean = np.mean(NF2w, axis=0)
     FF2_mean = np.mean(FF2w, axis=0)
 
-    NF1_std = np.std(NF1w, axis=0)
-    FF1_std = np.std(FF1w, axis=0)
-    NF2_std = np.std(NF2w, axis=0)
-    FF2_std = np.std(FF2w, axis=0)
+    NF1_se = np.std(NF1w, axis=0) / np.sqrt(num_model)
+    FF1_se = np.std(FF1w, axis=0) / np.sqrt(num_model)
+    NF2_se = np.std(NF2w, axis=0) / np.sqrt(num_model)
+    FF2_se = np.std(FF2w, axis=0) / np.sqrt(num_model)
 
     x1w = np.arange(1,np.shape(NF1w)[1]+1)
     x2w = np.arange(1,np.shape(FF1w)[1]+1) + x1w[-1]
@@ -171,13 +171,13 @@ def plot_learning(data_dir,num_model=10,w=1000,figsize=(6,10),init_phase=1):
 
     fig,ax = plt.subplots(2,1,figsize=figsize)
     ax[0].plot(x1w,NF1_mean,'k.-',label='NF1')
-    ax[0].fill_between(x1w, NF1_mean - NF1_std, NF1_mean + NF1_std, color='gray', alpha=0.5)
+    ax[0].fill_between(x1w, NF1_mean - NF1_se, NF1_mean + NF1_se, color='gray', alpha=0.5)
     ax[0].plot(x2w,FF1_mean,'g.-',label='FF1')
-    ax[0].fill_between(x2w, FF1_mean - FF1_std, FF1_mean + FF1_std, color='green', alpha=0.5)
+    ax[0].fill_between(x2w, FF1_mean - FF1_se, FF1_mean + FF1_se, color='green', alpha=0.5)
     ax[0].plot(x3w,NF2_mean,'k.-',label='NF2')
-    ax[0].fill_between(x3w, NF2_mean - NF2_std, NF2_mean + NF2_std, color='gray', alpha=0.5)
+    ax[0].fill_between(x3w, NF2_mean - NF2_se, NF2_mean + NF2_se, color='gray', alpha=0.5)
     ax[0].plot(x4w,FF2_mean,'r.-',label='FF2')
-    ax[0].fill_between(x4w, FF2_mean - FF2_std, FF2_mean + FF2_std, color='red', alpha=0.5)
+    ax[0].fill_between(x4w, FF2_mean - FF2_se, FF2_mean + FF2_se, color='red', alpha=0.5)
     ax[0].legend()
 
 
