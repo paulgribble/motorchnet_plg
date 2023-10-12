@@ -3,7 +3,7 @@
 d1=`date +"%Y-%m-%d %H:%M:%S"`
 SECONDS=0
 
-#python model.py 1 paul_test
+python model.py 1 paul_test
 
 duration=$SECONDS
 d2=`date +"%Y-%m-%d %H:%M:%S"`

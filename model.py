@@ -36,18 +36,14 @@ def train(model_num,ff_coefficient,phase,n_batch=None,condition="pretrain",direc
     policy = Policy(env.observation_space.shape[0], 32, env.n_muscles, device=device)
   
   if condition=="pretrain": 
-    optimizer = th.optim.Adam(policy.parameters(), lr=0.001)
-    batch_size = 64
+    optimizer = th.optim.Adam(policy.parameters())
+    batch_size = 1024
     catch_trial_perc = 50
-    if n_batch is None:
-      n_batch = 10000
 
   else: # for training use biologily plausible optimizer
     optimizer = th.optim.SGD(policy.parameters(), lr=0.001)
-    batch_size = 64
+    batch_size = 1024
     catch_trial_perc = 0
-    if n_batch is None:
-      n_batch = 500
 
   # Define Loss function
   def l1(x, y):
