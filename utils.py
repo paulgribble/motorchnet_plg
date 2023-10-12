@@ -86,7 +86,7 @@ def load_env(task,cfg=None):
         # Define task and the effector
         effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.ReluMuscle())
 
-        max_ep_duration = 0.7
+        max_ep_duration = 1.0
     else:
         name = cfg['name']
         # effector
@@ -116,7 +116,7 @@ def load_env(task,cfg=None):
     return env
 
 
-def plot_learning(data_dir,num_model=10,w=1000,figsize=(6,10),init_phase=1):
+def plot_learning(data_dir,num_model=10,w=100,figsize=(6,10),init_phase=1):
     position_loss_NF1 = []
     position_loss_FF1 = []
     position_loss_NF2 = []
@@ -178,6 +178,7 @@ def plot_learning(data_dir,num_model=10,w=1000,figsize=(6,10),init_phase=1):
     ax[0].fill_between(x3w, NF2_mean - NF2_se, NF2_mean + NF2_se, color='gray', alpha=0.5)
     ax[0].plot(x4w,FF2_mean,'r.-',label='FF2')
     ax[0].fill_between(x4w, FF2_mean - FF2_se, FF2_mean + FF2_se, color='red', alpha=0.5)
+    ax[0].set_title(f"window avg size = {w}")
     ax[0].legend()
 
 

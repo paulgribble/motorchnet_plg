@@ -92,7 +92,7 @@ def train(model_num,ff_coefficient,phase,n_batch=None,condition="pretrain",direc
     cartesian_loss = l1(xy[:,:,0:2], tg)
     action_loss = 1e-5 * th.sum(th.abs(all_actions))
     hidden_loss = 1e-6 * th.sum(th.abs(all_hidden))
-    hidden_diff_loss = 1e-7 * th.sum(th.abs(th.diff(all_hidden, dim=1)))
+    hidden_diff_loss = 1e-8 * th.sum(th.abs(th.diff(all_hidden, dim=1)))
     #muscle_loss = 0.1 * th.mean(th.sum(th.square(all_muscle), dim=-1))
 
     loss = cartesian_loss + action_loss + hidden_loss + hidden_diff_loss
@@ -195,7 +195,7 @@ if __name__ == "__main__":
           result = Parallel(n_jobs=len(these_iters))(delayed(train)(iteration,
                                                                     0,
                                                                     0,
-                                                                    n_batch=10000,
+                                                                    n_batch=50000,
                                                                     condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
