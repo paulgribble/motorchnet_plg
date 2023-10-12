@@ -186,8 +186,8 @@ if __name__ == "__main__":
     if trainall:
       directory_name = sys.argv[2]
 
-      iter_list = range(8)
       n_jobs = 8
+      iter_list = range(n_jobs)
       while len(iter_list) > 0:
           these_iters = iter_list[0:n_jobs]
           iter_list = iter_list[n_jobs:]
@@ -247,8 +247,8 @@ if __name__ == "__main__":
           result = Parallel(n_jobs=len(these_iters))(delayed(train)(iteration,ff_coefficient,phase,n_batch=n_batch,condition=condition,directory_name=directory_name) 
                                                      for iteration in these_iters)
 
-    data_dir = create_directory(directory_name='paul_test')
-    fig, ax = plot_learning(data_dir,num_model=16,w=10,figsize=(5,10))
+    data_dir = create_directory(directory_name=directory_name)
+    fig, ax = plot_learning(data_dir,num_model=n_jobs,w=10,figsize=(5,10))
     fig.savefig(os.path.join(data_dir,'learning_curve.png'),dpi=300)
 
 
