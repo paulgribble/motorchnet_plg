@@ -30,21 +30,18 @@ def train(model_num,ff_coefficient,phase,n_batch=None,condition="pretrain",direc
     policy = Policy(env.observation_space.shape[0], 32, env.n_muscles, device=device)
     policy.load_state_dict(th.load(weight_file))
 
+    optimizer = th.optim.SGD(policy.parameters(), lr=0.001)
+    batch_size = 64
+    catch_trial_perc = 0
+
   else:
     # environment and network
     env = load_env(CentreOutFF)    
     policy = Policy(env.observation_space.shape[0], 32, env.n_muscles, device=device)
-  
-  if condition=="pretrain": 
     optimizer = th.optim.Adam(policy.parameters())
-    batch_size = 1024
+    batch_size = 64
     catch_trial_perc = 50
-
-  else: # for training use biologily plausible optimizer
-    optimizer = th.optim.SGD(policy.parameters(), lr=0.001)
-    batch_size = 1024
-    catch_trial_perc = 0
-
+  
   # Define Loss function
   def l1(x, y):
     """L1 loss"""
@@ -189,8 +186,8 @@ if __name__ == "__main__":
     if trainall:
       directory_name = sys.argv[2]
 
-      iter_list = range(16)
-      n_jobs = 16
+      iter_list = range(8)
+      n_jobs = 8
       while len(iter_list) > 0:
           these_iters = iter_list[0:n_jobs]
           iter_list = iter_list[n_jobs:]
@@ -207,7 +204,7 @@ if __name__ == "__main__":
                                                                     0,
                                                                     1,
                                                                     n_batch=100,
-                                                                    condition='test',
+                                                                    condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
           # FF1
@@ -215,7 +212,7 @@ if __name__ == "__main__":
                                                                     10,
                                                                     2,
                                                                     n_batch=2000,
-                                                                    condition='test',
+                                                                    condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
           # NF2
@@ -223,7 +220,7 @@ if __name__ == "__main__":
                                                                     0,
                                                                     3,
                                                                     n_batch=1000,
-                                                                    condition='test',
+                                                                    condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
           # FF2
@@ -231,7 +228,7 @@ if __name__ == "__main__":
                                                                     10,
                                                                     4,
                                                                     n_batch=2000,
-                                                                    condition='test',
+                                                                    condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
           
@@ -241,9 +238,9 @@ if __name__ == "__main__":
       n_batch = int(sys.argv[4])
       condition = sys.argv[5]
       directory_name = sys.argv[6]
+      n_jobs = int(sys.argv[7])
 
-      iter_list = range(10)
-      n_jobs = 10
+      iter_list = range(n_jobs)
       while len(iter_list) > 0:
           these_iters = iter_list[0:n_jobs]
           iter_list = iter_list[n_jobs:]
