@@ -44,7 +44,7 @@ def plot_training_log(log):
     ax.set_xlabel("Batch #")
     return ax
 
-def plg_plots(data_dir,num_model,w,figsize,init_phase=1, xy, target_xy):
+def plg_plots(data_dir,num_model,w,figsize,init_phase, xy, target_xy):
     position_loss_NF1 = []
     position_loss_FF1 = []
     position_loss_NF2 = []
