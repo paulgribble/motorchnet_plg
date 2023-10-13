@@ -96,8 +96,9 @@ def train(model_num,ff_coefficient,phase,n_batch=None,condition="pretrain",direc
     hidden_loss = 1e-6 * th.sum(th.abs(all_hidden))
     hidden_diff_loss = 1e-8 * th.sum(th.abs(th.diff(all_hidden, dim=1)))
     #muscle_loss = 0.1 * th.mean(th.sum(th.square(all_muscle), dim=-1))
+    recurrent_loss = 1e-4 * th.sum(th.square(policy.gru.weight_hh_l0))
 
-    loss = cartesian_loss + action_loss + hidden_loss + hidden_diff_loss
+    loss = cartesian_loss + action_loss + hidden_loss + hidden_diff_loss + recurrent_loss
     
     # backward pass & update weights
     optimizer.zero_grad() 
