@@ -95,7 +95,7 @@ def train(model_num,ff_coefficient,phase,n_batch=None,condition="pretrain",direc
     action_loss = 1e-5 * th.sum(th.abs(all_actions))
     hidden_loss = 1e-6 * th.sum(th.abs(all_hidden))
     hidden_diff_loss = 1e-8 * th.sum(th.abs(th.diff(all_hidden, dim=1)))
-    muscle_loss = 0.1 * th.mean(th.sum(th.square(all_muscle), dim=-1))
+    #muscle_loss = 0.1 * th.mean(th.sum(th.square(all_muscle), dim=-1))
 
     loss = cartesian_loss + action_loss + hidden_loss + hidden_diff_loss
     
