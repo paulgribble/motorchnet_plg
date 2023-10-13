@@ -84,7 +84,7 @@ def load_env(task,cfg=None):
         proprioception_delay = 0.02
 
         # Define task and the effector
-        effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.ReluMuscle())
+        effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.RigidTendonHillMuscleThelen())
 
         max_ep_duration = 1.0
     else:

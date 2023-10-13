@@ -11,6 +11,8 @@ from joblib import Parallel, delayed
 from pathlib import Path
 from utils import create_directory, plot_learning
 
+n_hidden = 64
+
 def train(model_num,ff_coefficient,phase,n_batch=None,condition="pretrain",directory_name=None):
   output_folder = create_directory(directory_name=directory_name)
   model_name = "model{:02d}".format(model_num)
@@ -27,19 +29,19 @@ def train(model_num,ff_coefficient,phase,n_batch=None,condition="pretrain",direc
 
     # environment and network
     env = load_env(CentreOutFF,cfg)
-    policy = Policy(env.observation_space.shape[0], 32, env.n_muscles, device=device)
+    policy = Policy(env.observation_space.shape[0], n_hidden, env.n_muscles, device=device)
     policy.load_state_dict(th.load(weight_file))
 
     optimizer = th.optim.SGD(policy.parameters(), lr=0.001)
-    batch_size = 64
+    batch_size = 32
     catch_trial_perc = 0
 
   else:
     # environment and network
     env = load_env(CentreOutFF)    
-    policy = Policy(env.observation_space.shape[0], 32, env.n_muscles, device=device)
-    optimizer = th.optim.Adam(policy.parameters())
-    batch_size = 64
+    policy = Policy(env.observation_space.shape[0], n_hidden, env.n_muscles, device=device)
+    optimizer = th.optim.Adam(policy.parameters(), lr=0.001)
+    batch_size = 128
     catch_trial_perc = 50
   
   # Define Loss function
@@ -93,7 +95,7 @@ def train(model_num,ff_coefficient,phase,n_batch=None,condition="pretrain",direc
     action_loss = 1e-5 * th.sum(th.abs(all_actions))
     hidden_loss = 1e-6 * th.sum(th.abs(all_hidden))
     hidden_diff_loss = 1e-8 * th.sum(th.abs(th.diff(all_hidden, dim=1)))
-    #muscle_loss = 0.1 * th.mean(th.sum(th.square(all_muscle), dim=-1))
+    muscle_loss = 0.1 * th.mean(th.sum(th.square(all_muscle), dim=-1))
 
     loss = cartesian_loss + action_loss + hidden_loss + hidden_diff_loss
     
@@ -141,7 +143,7 @@ def test(cfg_file, weight_file, ff_coefficient=None):
     
   # environment and network
   env = load_env(CentreOutFF, cfg)
-  policy = Policy(env.observation_space.shape[0], 32, env.n_muscles, device=device)
+  policy = Policy(env.observation_space.shape[0], n_hidden, env.n_muscles, device=device)
   policy.load_state_dict(th.load(weight_file))
 
   batch_size = 8
@@ -186,7 +188,7 @@ if __name__ == "__main__":
     if trainall:
       directory_name = sys.argv[2]
 
-      n_jobs = 8
+      n_jobs = 10
       iter_list = range(n_jobs)
       while len(iter_list) > 0:
           these_iters = iter_list[0:n_jobs]
@@ -195,7 +197,7 @@ if __name__ == "__main__":
           result = Parallel(n_jobs=len(these_iters))(delayed(train)(iteration,
                                                                     0,
                                                                     0,
-                                                                    n_batch=50000,
+                                                                    n_batch=20000,
                                                                     condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
@@ -211,7 +213,7 @@ if __name__ == "__main__":
           result = Parallel(n_jobs=len(these_iters))(delayed(train)(iteration,
                                                                     10,
                                                                     2,
-                                                                    n_batch=2000,
+                                                                    n_batch=1000,
                                                                     condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
@@ -219,7 +221,7 @@ if __name__ == "__main__":
           result = Parallel(n_jobs=len(these_iters))(delayed(train)(iteration,
                                                                     0,
                                                                     3,
-                                                                    n_batch=1000,
+                                                                    n_batch=500,
                                                                     condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
@@ -227,7 +229,7 @@ if __name__ == "__main__":
           result = Parallel(n_jobs=len(these_iters))(delayed(train)(iteration,
                                                                     10,
                                                                     4,
-                                                                    n_batch=2000,
+                                                                    n_batch=1000,
                                                                     condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
@@ -248,7 +250,7 @@ if __name__ == "__main__":
                                                      for iteration in these_iters)
 
     data_dir = create_directory(directory_name=directory_name)
-    fig, ax = plot_learning(data_dir,num_model=n_jobs,w=10,figsize=(5,10))
-    fig.savefig(os.path.join(data_dir,'learning_curve.png'),dpi=300)
+    fig, ax = plot_learning(data_dir, num_model=n_jobs, w=10, figsize=(5,10))
+    fig.savefig(os.path.join(data_dir, 'learning_curve.png'), dpi=150)
 
 
