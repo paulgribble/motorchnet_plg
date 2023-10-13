@@ -44,22 +44,104 @@ def plot_training_log(log):
     ax.set_xlabel("Batch #")
     return ax
 
+def plg_plots(data_dir,num_model,w,figsize,init_phase=1, xy, target_xy):
+    position_loss_NF1 = []
+    position_loss_FF1 = []
+    position_loss_NF2 = []
+    position_loss_FF2 = []
+
+    # Loop through each model
+    for m in range(num_model):
+
+        model_name = "model{:02d}".format(m)
+
+
+        log_file1 = list(Path(data_dir).glob(f'{model_name}_phase={init_phase}_*_log.json'))[0]
+        log_file2 = list(Path(data_dir).glob(f'{model_name}_phase={init_phase+1}_*_log.json'))[0]
+        log_file3 = list(Path(data_dir).glob(f'{model_name}_phase={init_phase+2}_*_log.json'))[0]
+        log_file4 = list(Path(data_dir).glob(f'{model_name}_phase={init_phase+3}_*_log.json'))[0]
+        
+        position_loss_NF1_ = json.load(open(log_file1,'r'))
+        position_loss_FF1_ = json.load(open(log_file2,'r'))
+        position_loss_NF2_ = json.load(open(log_file3,'r'))
+        position_loss_FF3_ = json.load(open(log_file4,'r'))
+        
+        # Append data for each model
+        position_loss_NF1.append(position_loss_NF1_['position_loss'])
+        position_loss_FF1.append(position_loss_FF1_['position_loss'])
+        position_loss_NF2.append(position_loss_NF2_['position_loss'])
+        position_loss_FF2.append(position_loss_FF3_['position_loss'])
+
+
+    # Calculate window averages for all models
+    NF1w = [window_average(np.array(loss), w) for loss in position_loss_NF1]
+    FF1w = [window_average(np.array(loss), w) for loss in position_loss_FF1]
+    NF2w = [window_average(np.array(loss), w) for loss in position_loss_NF2]
+    FF2w = [window_average(np.array(loss), w) for loss in position_loss_FF2]
+
+
+    # Calculate the mean and standard deviation across models
+    NF1_mean = np.mean(NF1w, axis=0)
+    FF1_mean = np.mean(FF1w, axis=0)
+    NF2_mean = np.mean(NF2w, axis=0)
+    FF2_mean = np.mean(FF2w, axis=0)
+
+    NF1_se = np.std(NF1w, axis=0) / np.sqrt(num_model)
+    FF1_se = np.std(FF1w, axis=0) / np.sqrt(num_model)
+    NF2_se = np.std(NF2w, axis=0) / np.sqrt(num_model)
+    FF2_se = np.std(FF2w, axis=0) / np.sqrt(num_model)
+
+    x1w = np.arange(1,np.shape(NF1w)[1]+1)
+    x2w = np.arange(1,np.shape(FF1w)[1]+1) + x1w[-1]
+    x3w = np.arange(1,np.shape(NF2w)[1]+1) + x2w[-1]
+    x4w = np.arange(1,np.shape(FF2w)[1]+1) + x3w[-1]
+
+
+    fig,ax = plt.subplot_mosaic([['upper left', 'upper right'],
+                               ['lower', 'lower']],
+                               figsize=figsize, layout="constrained")
+    ax[0,0].plot(x1w,NF1_mean,'k.-',label='NF1')
+    ax[0,0].fill_between(x1w, NF1_mean - NF1_se, NF1_mean + NF1_se, color='gray', alpha=0.5)
+    ax[0,0].plot(x2w,FF1_mean,'g.-',label='FF1')
+    ax[0,0].fill_between(x2w, FF1_mean - FF1_se, FF1_mean + FF1_se, color='green', alpha=0.5)
+    ax[0,0].plot(x3w,NF2_mean,'k.-',label='NF2')
+    ax[0,0].fill_between(x3w, NF2_mean - NF2_se, NF2_mean + NF2_se, color='gray', alpha=0.5)
+    ax[0,0].plot(x4w,FF2_mean,'r.-',label='FF2')
+    ax[0,0].fill_between(x4w, FF2_mean - FF2_se, FF2_mean + FF2_se, color='red', alpha=0.5)
+    ax[0,0].set_title(f"window avg size = {w}")
+    ax[0,0].legend()
+
+    ax[0,1].plot(FF1_mean,'g.-',label='FF1')
+    ax[0,1].plot(FF2_mean,'r.-',label='FF2')
+    ax[0,1].legend()
+
+    target_x = target_xy[:, -1, 0]
+    target_y = target_xy[:, -1, 1]
+
+    ax[1,(0,1)].set_ylim([0.3, 0.65])
+    ax[1,(0,1)].set_xlim([-0.3, 0.])
+
+    plotor = mn.plotor.plot_pos_over_time
+
+    plotor(axis=ax[0,1], cart_results=xy)
+    ax[0,1].scatter(target_x, target_y)
+
+    return fig, ax
+
 
 def plot_simulations(xy, target_xy):
     target_x = target_xy[:, -1, 0]
     target_y = target_xy[:, -1, 1]
 
-    plt.figure(figsize=(5,3))
+    fig,ax = plt.subplots(1,1,figsize=(5,3))
 
-    plt.subplot(1,1,1)
-    plt.ylim([0.3, 0.65])
-    plt.xlim([-0.3, 0.])
+    ax.set_ylim([0.3, 0.65])
+    ax.set_xlim([-0.3, 0.])
 
     plotor = mn.plotor.plot_pos_over_time
 
-
-    plotor(axis=plt.gca(), cart_results=xy)
-    plt.scatter(target_x, target_y)
+    plotor(axis=ax, cart_results=xy)
+    ax.scatter(target_x, target_y)
 
     #plt.subplot(1,2,2)
     #plt.ylim([-0.1, 0.1])
@@ -69,7 +151,7 @@ def plot_simulations(xy, target_xy):
     #plt.axvline(0, c="grey")
     #plt.xlabel("X distance to target")
     #plt.ylabel("Y distance to target")
-    plt.show()
+    return fig, ax
 
 def load_env(task,cfg=None):
 

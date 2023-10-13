@@ -9,7 +9,7 @@ import numpy as np
 import json
 from joblib import Parallel, delayed
 from pathlib import Path
-from utils import create_directory, plot_learning
+from utils import create_directory, plg_plots
 
 n_hidden = 64
 
@@ -198,7 +198,7 @@ if __name__ == "__main__":
           result = Parallel(n_jobs=len(these_iters))(delayed(train)(iteration,
                                                                     0,
                                                                     0,
-                                                                    n_batch=20000,
+                                                                    n_batch=40000,
                                                                     condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
@@ -214,7 +214,7 @@ if __name__ == "__main__":
           result = Parallel(n_jobs=len(these_iters))(delayed(train)(iteration,
                                                                     10,
                                                                     2,
-                                                                    n_batch=1000,
+                                                                    n_batch=1500,
                                                                     condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
@@ -230,7 +230,7 @@ if __name__ == "__main__":
           result = Parallel(n_jobs=len(these_iters))(delayed(train)(iteration,
                                                                     10,
                                                                     4,
-                                                                    n_batch=1000,
+                                                                    n_batch=1500,
                                                                     condition='pretrain',
                                                                     directory_name=directory_name) 
                                                      for iteration in these_iters)
@@ -251,7 +251,14 @@ if __name__ == "__main__":
                                                      for iteration in these_iters)
 
     data_dir = create_directory(directory_name=directory_name)
-    fig, ax = plot_learning(data_dir, num_model=n_jobs, w=10, figsize=(5,10))
-    fig.savefig(os.path.join(data_dir, 'learning_curve.png'), dpi=150)
-
+    model_num = 0
+    model_name = "model{:02d}".format(model_num)
+    phase: int = 0
+    ff_coefficient = int(str(0))
+    weight_file = os.path.join(data_dir, f"{model_name}_phase={phase}_FFCoef={ff_coefficient}_weights")
+    log_file = os.path.join(data_dir, f"{model_name}_phase={phase}_FFCoef={ff_coefficient}_log.json")
+    cfg_file = os.path.join(data_dir, f"{model_name}_phase={phase}_FFCoef={ff_coefficient}_cfg.json")
+    xy, tg = test(cfg_file,weight_file,ff_coefficient=0)
+    fig,ax = plg_plots(data_dir, num_model=n_jobs, w=10, figsize=(5,10), init_phase=1, xy=xy, target_xy=tg)
+    fig.savefig(os.path.join(data_dir, 'plots.png'), dpi=150)
 
