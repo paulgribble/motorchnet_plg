@@ -97,9 +97,7 @@ def plg_plots(data_dir,num_model,w,figsize,init_phase, xy, target_xy):
     x4w = np.arange(1,np.shape(FF2w)[1]+1) + x3w[-1]
 
 
-    fig,ax = plt.subplot_mosaic([['upper left', 'upper right'],
-                               ['lower', 'lower']],
-                               figsize=figsize, layout="constrained")
+    fig,ax = plt.subplots(2,2,figsize=figsize)
     ax[0,0].plot(x1w,NF1_mean,'k.-',label='NF1')
     ax[0,0].fill_between(x1w, NF1_mean - NF1_se, NF1_mean + NF1_se, color='gray', alpha=0.5)
     ax[0,0].plot(x2w,FF1_mean,'g.-',label='FF1')
@@ -111,15 +109,15 @@ def plg_plots(data_dir,num_model,w,figsize,init_phase, xy, target_xy):
     ax[0,0].set_title(f"window avg size = {w}")
     ax[0,0].legend()
 
-    ax[0,1].plot(FF1_mean,'g.-',label='FF1')
-    ax[0,1].plot(FF2_mean,'r.-',label='FF2')
-    ax[0,1].legend()
+    ax[1,0].plot(FF1_mean,'g.-',label='FF1')
+    ax[1,0].plot(FF2_mean,'r.-',label='FF2')
+    ax[1,0].legend()
 
     target_x = target_xy[:, -1, 0]
     target_y = target_xy[:, -1, 1]
 
-    ax[1,(0,1)].set_ylim([0.3, 0.65])
-    ax[1,(0,1)].set_xlim([-0.3, 0.])
+    ax[0,1].set_ylim([0.3, 0.65])
+    ax[0,1].set_xlim([-0.3, 0.])
 
     plotor = mn.plotor.plot_pos_over_time
 

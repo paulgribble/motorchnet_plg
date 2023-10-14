@@ -259,6 +259,6 @@ if __name__ == "__main__":
     log_file = os.path.join(data_dir, f"{model_name}_phase={phase}_FFCoef={ff_coefficient}_log.json")
     cfg_file = os.path.join(data_dir, f"{model_name}_phase={phase}_FFCoef={ff_coefficient}_cfg.json")
     xy, tg = test(cfg_file,weight_file,ff_coefficient=0)
-    fig,ax = plg_plots(data_dir, num_model=n_jobs, w=10, figsize=(5,10), init_phase=1, xy=xy, target_xy=tg)
+    fig,ax = plg_plots(data_dir, num_model=n_jobs, w=10, figsize=(8,8), init_phase=1, xy=xy, target_xy=tg)
     fig.savefig(os.path.join(data_dir, 'plots.png'), dpi=150)
 
