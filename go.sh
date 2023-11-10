@@ -1,11 +1,18 @@
 #!/bin/bash
 
 d1=`date +"%Y-%m-%d %H:%M:%S"`
-SECONDS=0
 
-python model.py 1 paul
+jupyter nbconvert --to notebook --inplace --execute $1
 
-duration=$SECONDS
+jupyter nbconvert --to html $1
+
 d2=`date +"%Y-%m-%d %H:%M:%S"`
 
-python notify_email.py motornet "$d1" "$d2" "$duration" /Users/plg/Documents/Data/paul/plots.png
+filename="${1%.ipynb}"
+html=".html"
+attachment="${filename}${html}"
+
+echo $attachment
+
+python3 notify_email.py $1 "$d1" "$d2" "$attachment"
+

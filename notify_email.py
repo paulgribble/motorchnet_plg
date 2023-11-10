@@ -57,9 +57,9 @@ if __name__ == "__main__":
     pwd=lines[1]
     f.close()
     subject = f"job {sys.argv[1]} on {os.uname()[1]} has finished"
-    body = f"job:\t{sys.argv[1]} \non:\t{os.uname()[1]} \nt1:\t{sys.argv[2]} \nt2:\t{sys.argv[3]} \nt:\t{sys.argv[4]} sec \n"
-    if (len(sys.argv) > 4):
-        attachment = sys.argv[5]
+    body = f"job:\t{sys.argv[1]} \non:\t{os.uname()[1]} \nt1:\t{sys.argv[2]} \nt2:\t{sys.argv[3]}\n"
+    if (len(sys.argv) > 3):
+        attachment = sys.argv[4]
     else:
         attachment = ""
     send_email("pgribble@uwo.ca", subject, body, attachment)
