@@ -1,8 +1,7 @@
 import torch as th
 
-
 class Policy(th.nn.Module):
-    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, device):
+    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, device, freeze_output_layer=False):
         super().__init__()
         self.device = device
         self.hidden_dim = hidden_dim
@@ -11,6 +10,10 @@ class Policy(th.nn.Module):
         self.gru = th.nn.GRU(input_dim, hidden_dim, 1, batch_first=True)
         self.fc = th.nn.Linear(hidden_dim, output_dim)
         self.sigmoid = th.nn.Sigmoid()
+        
+        if freeze_output_layer:
+            for param in self.fc.parameters():
+                param.requires_grad = False
 
         # the default initialization in torch isn't ideal
         for name, param in self.named_parameters():
@@ -28,6 +31,7 @@ class Policy(th.nn.Module):
                 th.nn.init.constant_(param, -5.)
             else:
                 raise ValueError
+        #self.h0 = th.nn.Parameter(th.zeros(self.n_layers, 1, hidden_dim), requires_grad=True)
         
         self.to(device)
 
@@ -43,4 +47,5 @@ class Policy(th.nn.Module):
     def init_hidden(self, batch_size):
         weight = next(self.parameters()).data
         hidden = weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().to(self.device)
+        #hidden = self.h0.repeat(1,batch_size,1).to(self.device)
         return hidden

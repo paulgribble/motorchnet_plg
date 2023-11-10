@@ -4,8 +4,6 @@ import numpy as np
 from typing import Any
 from typing import Union
 
-
-
 class CentreOutFF(mn.environment.Environment):
   """A reach to a random target from a random starting position."""
 
@@ -17,7 +15,7 @@ class CentreOutFF(mn.environment.Environment):
   def reset(self, *, 
             seed: int | None = None, 
             ff_coefficient: float = 0., 
-            condition: str = "pretrain",
+            condition: str = 'train',
             catch_trial_perc: float = 50,
             go_cue_range: Union[list, tuple, np.ndarray] = (0.1, 0.3),
             options: dict[str, Any] | None = None) -> tuple[Any, dict[str, Any]]:
@@ -33,7 +31,7 @@ class CentreOutFF(mn.environment.Environment):
     self.ff_coefficient = ff_coefficient
     self.go_cue_range = go_cue_range # in seconds
     
-    if (condition=="pretrain"): # train net to reach to random targets
+    if (condition=='train'): # train net to reach to random targets
 
       joint_state = None
 
@@ -44,17 +42,19 @@ class CentreOutFF(mn.environment.Environment):
       go_cue_time = np.random.uniform(self.go_cue_range[0],self.go_cue_range[1],batch_size)
       self.go_cue_time = go_cue_time
 
-    elif (condition=="test"): # centre-out reaches to each target
+    elif (condition=='test'): # centre-out reaches to each target
 
-      angle_set   = np.deg2rad(np.arange(0,360,45)) # 8 directions
+      angle_set = np.deg2rad(np.arange(0,360,45)) # 8 directions
       reps        = int(np.ceil(batch_size / len(angle_set)))
       angle       = np.tile(angle_set, reps=reps)
       batch_size  = reps * len(angle_set)
 
-      reaching_distance = 0.1
+      reaching_distance = 0.10
       lb = np.array(self.effector.pos_lower_bound)
       ub = np.array(self.effector.pos_upper_bound)
       start_position = lb + (ub - lb) / 2
+      
+      start_position = np.array([1.047, 1.570])
       start_position = start_position.reshape(1,-1)
       start_jpv = th.from_numpy(np.concatenate([start_position, np.zeros_like(start_position)], axis=1)) # joint position and velocity
       start_cpv = self.joint2cartesian(start_jpv).numpy()
@@ -121,10 +121,13 @@ class CentreOutFF(mn.environment.Environment):
     
     self.effector.step(noisy_action,endpoint_load=self.endpoint_load) # **kwargs
 
-    # Calculate endpoiont_load
+    # Calculate endpoint_load
     vel = self.states["cartesian"][:,2:]
     FF_matvel = th.tensor([[0, 1], [-1, 0]], dtype=th.float32)
+    # set endpoint load to zero before go cue
     self.endpoint_load = self.ff_coefficient * (vel@FF_matvel.T)
+    mask = self.elapsed < self.go_cue_time
+    self.endpoint_load[mask] = 0
 
     # TODO: what is the purpose of clone here?
     self.goal = self.goal.clone()
@@ -163,7 +166,7 @@ class CentreOutFF(mn.environment.Environment):
       self.goal,
       self.obs_buffer["vision"][0],  # oldest element
       self.obs_buffer["proprioception"][0],   # oldest element
-      self.go_cue, # sepcify go cue as an input to the network
+      self.go_cue, # specify go cue as an input to the network
       ]
     obs = th.cat(obs_as_list, dim=-1)
 
