@@ -44,7 +44,7 @@ class CentreOutFF(mn.environment.Environment):
 
     elif (condition=='test'): # centre-out reaches to each target
 
-      angle_set = np.deg2rad(np.arange(0,360,45)) # 8 directions
+      angle_set   = np.deg2rad(np.arange(0,360,45)) # 8 directions
       reps        = int(np.ceil(batch_size / len(angle_set)))
       angle       = np.tile(angle_set, reps=reps)
       batch_size  = reps * len(angle_set)
@@ -125,7 +125,7 @@ class CentreOutFF(mn.environment.Environment):
     vel = self.states["cartesian"][:,2:]
     FF_matvel = th.tensor([[0, 1], [-1, 0]], dtype=th.float32)
     # set endpoint load to zero before go cue
-    self.endpoint_load = self.ff_coefficient * (vel@FF_matvel.T)
+    self.endpoint_load = self.ff_coefficient * (vel @ FF_matvel.T)
     mask = self.elapsed < self.go_cue_time
     self.endpoint_load[mask] = 0
 
@@ -137,7 +137,7 @@ class CentreOutFF(mn.environment.Environment):
     mask = self.elapsed >= (self.go_cue_time + (self.vision_delay-1) * self.dt)
     self.go_cue[mask] = 1
 
-    obs = self.get_obs(action=noisy_action)
+    obs = self.get_obs(action = noisy_action)
     reward = None
     truncated = False
     terminated = bool(self.elapsed >= self.max_ep_duration)
