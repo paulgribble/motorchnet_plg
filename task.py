@@ -4,7 +4,25 @@ import numpy as np
 from typing import Any
 from typing import Union
 
-class CentreOutFF(mn.environment.Environment):
+# compute a min-jerk trajectory
+def minjerk(H1,H2,tau):
+    """
+    Given hand initial position H1=(x1,y1), final position H2=(x2,y2) and movement duration t,
+    and the total number of desired sampled points n,
+    Calculates the hand path H over time T that satisfies minimum-jerk.
+    Also returns derivatives Hd and Hdd
+
+    Flash, Tamar, and Neville Hogan. "The coordination of arm
+        movements: an experimentally confirmed mathematical model." The
+        journal of Neuroscience 5, no. 7 (1985): 1688-1703.
+    """
+    batch_size = H1.size(dim=0)
+    H = th.zeros((batch_size,2))
+    H[:,0] = H1[:,0] + th.multiply((H1-H2)[:,0],(15*(tau**4) - (6*tau**5) - (10*tau**3)))
+    H[:,1] = H1[:,1] + th.multiply((H1-H2)[:,1],(15*(tau**4) - (6*tau**5) - (10*tau**3)))
+    return H
+
+class CentreOutFFMinJerk(mn.environment.Environment):
   """A reach to a random target from a random starting position."""
 
   def __init__(self, *args, **kwargs):
@@ -141,11 +159,19 @@ class CentreOutFF(mn.environment.Environment):
     reward = None
     truncated = False
     terminated = bool(self.elapsed >= self.max_ep_duration)
+    tau = th.from_numpy((self.elapsed-self.go_cue_time) / 0.5)
+    goali = minjerk(self.init,
+                    self.goal,
+                    tau,
+                    ) # MINJERK
+    # use goal if tau > 1.0
+    goali[:,0] = th.multiply(goali[:,0],tau<=1.0) + th.multiply(self.goal[:,0],tau>1.0)
+    goali[:,1] = th.multiply(goali[:,1],tau<=1.0) + th.multiply(self.goal[:,1],tau>1.0)
     info = {
       "states": self.states,
       "action": action,
       "noisy action": noisy_action,
-      "goal": self.goal * self.go_cue + self.init * (1-self.go_cue), # update the target depending on the go cue
+      "goal": goali * self.go_cue + self.init * (1-self.go_cue), # update the target depending on the go cue
       }
     return obs, reward, terminated, truncated, info
 
