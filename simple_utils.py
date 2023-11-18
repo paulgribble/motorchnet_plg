@@ -80,10 +80,14 @@ def plot_kinematics(all_xy, all_tg, all_vel):
     return fig, ax
 
 
-def run_episode(env, policy, batch_size=1, catch_trial_perc=50, condition='train', ff_coefficient=None, detach=False):
+def run_episode(env, policy, batch_size=1, catch_trial_perc=50, condition='train', ff_coefficient=None, test_mov_dur=0.500, detach=False):
 
   h = policy.init_hidden(batch_size=batch_size)
-  obs, info = env.reset(condition=condition, catch_trial_perc=catch_trial_perc, ff_coefficient=ff_coefficient, options={'batch_size': batch_size})
+  obs, info = env.reset(condition        = condition, 
+                        catch_trial_perc = catch_trial_perc, 
+                        ff_coefficient   = ff_coefficient, 
+                        test_mov_dur     = test_mov_dur, 
+                        options          = {'batch_size': batch_size})
   terminated = False
 
   # Initialize a dictionary to store lists
@@ -123,7 +127,7 @@ def run_episode(env, policy, batch_size=1, catch_trial_perc=50, condition='train
   return data
 
 
-def test(cfg_file, weight_file, ff_coefficient=None):
+def test(cfg_file, weight_file, ff_coefficient=None, test_mov_dur=0.500):
 
     device = th.device("cpu")
 
@@ -164,9 +168,10 @@ def test(cfg_file, weight_file, ff_coefficient=None):
     policy.load_state_dict(w)
 
     # Run episode
-    data = run_episode(env,policy,8,0,'test',ff_coefficient=ff_coefficient,detach=True)
+    data = run_episode(env, policy, 8, 0, 'test', ff_coefficient=ff_coefficient, test_mov_dur=test_mov_dur, detach=True)
     
     return data
+
 
 def cal_loss(data, max_iso_force, dt, policy, test=False):
 
@@ -179,7 +184,9 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
   hidden_loss = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
   diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
 
-  loss = position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
+#  loss = position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
+  loss = 10*position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
+
 
   angle_loss = None
   lateral_loss = None
@@ -228,6 +235,7 @@ def calculate_angles_between_vectors(vel, tg, xy):
     angles = sign*np.degrees(np.arccos(np.sum(X2 * X3, axis=1) / (1e-8+np.linalg.norm(X2, axis=1) * np.linalg.norm(X3, axis=1))))
 
     return angles
+
 
 def calculate_lateral_deviation(xy, tg, vel=None):
     """
@@ -286,6 +294,7 @@ def calculate_lateral_deviation(xy, tg, vel=None):
         opt['lateral_vel'] = np.mean(lateral_vel,axis=-1)
 
     return sign*max_laterl_dev, init, endp, opt
+
 
 def save_model(env, policy, losses, model_name, quiet=False):
     weight_file = model_name + '_weights'

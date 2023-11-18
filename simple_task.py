@@ -28,13 +28,14 @@ class CentreOutFFMinJerk(mn.environment.Environment):
   def __init__(self, *args, **kwargs):
     # pass everything as-is to the parent Environment class
     super().__init__(*args, **kwargs)
-    self.__name__ = "CentreOutFF"
+    self.__name__ = "CentreOutFFMinJerk"
 
   def reset(self, *, 
             seed: int | None = None, 
             ff_coefficient: float = 0., 
             condition: str = 'train',
             catch_trial_perc: float = 50,
+            test_mov_dur: float = 0.500,
             go_cue_range: Union[list, tuple, np.ndarray] = (0.1, 0.3),
             options: dict[str, Any] | None = None) -> tuple[Any, dict[str, Any]]:
 
@@ -48,6 +49,7 @@ class CentreOutFFMinJerk(mn.environment.Environment):
     self.catch_trial_perc = catch_trial_perc
     self.ff_coefficient = ff_coefficient
     self.go_cue_range = go_cue_range # in seconds
+    self.test_mov_dur = test_mov_dur # sec
     
     if (condition=='train'): # train net to reach to random targets
 
@@ -97,7 +99,7 @@ class CentreOutFFMinJerk(mn.environment.Environment):
       self.go_cue_time = go_cue_time
 
       # specify movement duration
-      movement_duration = np.ones((batch_size)) * 0.500
+      movement_duration = np.ones((batch_size)) * self.test_mov_dur
       self.movement_duration = movement_duration
       
     self.effector.reset(options={"batch_size": batch_size,"joint_state": joint_state})
