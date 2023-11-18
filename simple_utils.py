@@ -10,7 +10,8 @@ from simple_policy import Policy
 def window_average(x, w=10):
     rows = int(np.size(x)/w) # round to (floor) int
     cols = w
-    return x[0:w*rows].reshape((rows,cols)).mean(axis=1)
+    xw = x[0:w*rows].reshape((rows,cols)).mean(axis=1)
+    return xw
 
 def plot_training_log(log,loss_type,w=50,figsize=(10,3)):
     """
@@ -19,12 +20,13 @@ def plot_training_log(log,loss_type,w=50,figsize=(10,3)):
     fig, ax = plt.subplots(figsize=figsize)
     if isinstance(log,dict):
        log = log[loss_type]
-    log = window_average(np.array(log),w=w)
+    logw = window_average(np.array(log),w=w)
 
-    ax.semilogy(log)
+    x = np.linspace(0,np.size(logw)-1,np.size(logw)) * w
+    ax.semilogy(x, logw)
 
     ax.set_ylabel("Loss")
-    ax.set_xlabel("Batch #")
+    ax.set_xlabel(f"Batch #")
     return fig, ax
 
   
