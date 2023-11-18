@@ -68,10 +68,12 @@ def plot_kinematics(all_xy, all_tg, all_vel):
     fig, ax = plt.subplots(nrows=n, ncols=2, figsize=(6,10))
 
     x = np.linspace(0, 1, all_xy.size(dim=1))
+    tgvel = np.diff(np.array(all_tg), axis=1)*100
 
     for i in range(n):
         ax[i,0].plot(x,np.array(all_tg[i,:,:]), '--')
         ax[i,0].plot(x,np.array(all_xy[i,:,:]), '-')
+        ax[i,1].plot(x[1:],np.array(tgvel[i,:,:]), '--')
         ax[i,1].plot(x,np.array(all_vel[i,:,:]), '-')
         
         ax[i,0].set_ylabel('xy,tg')
@@ -187,7 +189,7 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
   diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
 
 #  loss = position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
-  loss = 100*position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
+  loss = position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
 
 
   angle_loss = None
