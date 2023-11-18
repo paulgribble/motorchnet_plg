@@ -283,7 +283,27 @@ def calculate_lateral_deviation(xy, tg, vel=None):
         lateral_vel = np.linalg.norm(vel - projection,axis=2)
         opt['lateral_vel'] = np.mean(lateral_vel,axis=-1)
 
-
-
-
     return sign*max_laterl_dev, init, endp, opt
+
+def save_model(env, policy, losses, model_name, quiet=False):
+    weight_file = model_name + '_weights'
+    log_file    = model_name + '_log.json'
+    cfg_file    = model_name + '_cfg.json'
+
+    # save model weights
+    th.save(policy.state_dict(), weight_file)
+
+    # save training history (log)
+    with open(log_file, 'w') as file:
+        json.dump({'losses':losses}, file)
+
+    # save environment configuration dictionary
+    cfg = env.get_save_config()
+    with open(cfg_file, 'w') as file:
+        json.dump(cfg, file)
+
+    if (quiet==False):
+        print(f"saved {weight_file}")
+        print(f"saved {log_file}")
+        print(f"saved {cfg_file}")
+
