@@ -6,16 +6,27 @@ import motornet as mn
 from simple_task import CentreOutFFMinJerk
 from simple_policy import Policy
 
-def plot_training_log(log):
-  fig, axs = plt.subplots(1, 1)
-  fig.set_tight_layout(True)
-  fig.set_size_inches((8, 3))
 
-  axs.semilogy(log)
+def window_average(x, w=10):
+    rows = int(np.size(x)/w) # round to (floor) int
+    cols = w
+    return x[0:w*rows].reshape((rows,cols)).mean(axis=1)
 
-  axs.set_ylabel("Loss")
-  axs.set_xlabel("Batch #")
-  plt.show()
+def plot_training_log(log,loss_type,w=50,figsize=(10,3)):
+    """
+        loss_type: 'position_loss' or 'hidden_loss' or 'muscle_loss' or 'overall_loss'
+    """
+    fig, ax = plt.subplots(figsize=figsize)
+    if isinstance(log,dict):
+       log = log[loss_type]
+    log = window_average(np.array(log),w=w)
+
+    ax.semilogy(log)
+
+    ax.set_ylabel("Loss")
+    ax.set_xlabel("Batch #")
+    return fig, ax
+
   
 def plot_simulations(xy, target_xy, figsize=(5,3)):
     target_x = target_xy[:, -1, 0]
@@ -48,6 +59,24 @@ def plot_activation(all_hidden, all_muscles):
         ax[i,1].set_xlabel('time (s)')
     fig.tight_layout()
     return fig, ax
+
+def plot_kinematics(all_xy, all_tg, all_vel):
+    fig, ax = plt.subplots(nrows=8,ncols=2,figsize=(6,10))
+
+    x = np.linspace(0, 1, all_xy.size(dim=1))
+
+    for i in range(8):
+        ax[i,0].plot(x,np.array(all_tg[i,:,:]), '--')
+        ax[i,0].plot(x,np.array(all_xy[i,:,:]), '-')
+        ax[i,1].plot(x,np.array(all_vel[i,:,:]), '-')
+        
+        ax[i,0].set_ylabel('xy,tg')
+        ax[i,1].set_ylabel('vel')
+        ax[i,0].set_xlabel('time (s)')
+        ax[i,1].set_xlabel('time (s)')
+    fig.tight_layout()
+    return fig, ax
+
 
 def run_episode(env, policy, batch_size=1, catch_trial_perc=50, condition='train', ff_coefficient=None, detach=False):
 
@@ -158,3 +187,103 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
     lateral_loss = np.mean(lateral_loss)
 
   return loss, position_loss, muscle_loss, hidden_loss, angle_loss, lateral_loss
+
+
+def calculate_angles_between_vectors(vel, tg, xy):
+    """
+    Calculate angles between vectors X2 and X3.
+
+    Parameters:
+    - vel (numpy.ndarray): Velocity array.
+    - tg (numpy.ndarray): Tg array.
+    - xy (numpy.ndarray): Xy array.
+
+    Returns:
+    - angles (numpy.ndarray): An array of angles in degrees between vectors X2 and X3.
+    """
+
+    tg = np.array(tg)
+    xy = np.array(xy)
+    vel = np.array(vel)
+    
+    # Compute the magnitude of velocity and find the index to the maximum velocity
+    vel_norm = np.linalg.norm(vel, axis=-1)
+    idx = np.argmax(vel_norm, axis=1)
+
+    # Calculate vectors X2 and X3
+    X2 = tg[:,-1,:]
+    X1 = xy[:,25,:]
+    X3 = xy[np.arange(xy.shape[0]), idx, :]
+
+    X2 = X2 - X1
+    X3 = X3 - X1
+    
+    cross_product = np.cross(X3, X2)
+    # Calculate the sign of the angle
+    sign = np.sign(cross_product)
+
+    # Calculate the angles in degrees
+    angles = sign*np.degrees(np.arccos(np.sum(X2 * X3, axis=1) / (1e-8+np.linalg.norm(X2, axis=1) * np.linalg.norm(X3, axis=1))))
+
+    return angles
+
+def calculate_lateral_deviation(xy, tg, vel=None):
+    """
+    Calculate the lateral deviation of trajectory xy from the line connecting X1 and X2.
+
+    Parameters:
+    - tg (numpy.ndarray): Tg array.
+    - xy (numpy.ndarray): Xy array.
+
+    Returns:
+    - deviation (numpy.ndarray): An array of lateral deviations.
+    """
+    tg = np.array(tg)
+    xy = np.array(xy)
+
+    # Calculate vectors X2 and X1
+    X2 = tg[:,-1,:]
+    X1 = xy[:,25,:]
+
+    # Calculate the vector representing the line connecting X1 to X2
+    line_vector = X2 - X1
+    line_vector2 = np.tile(line_vector[:,None,:],(1,xy.shape[1],1))
+
+    # Calculate the vector representing the difference between xy and X1
+    trajectory_vector = xy - X1[:,None,:]
+
+    projection = np.sum(line_vector2 * trajectory_vector, axis=-1)/np.sum(line_vector2 * line_vector2, axis=-1)
+    projection = line_vector2 * projection[:,:,np.newaxis]
+
+    lateral_dev = np.linalg.norm(trajectory_vector - projection,axis=2)
+
+    idx = np.argmax(lateral_dev,axis=1)
+
+    max_laterl_dev = lateral_dev[np.arange(idx.shape[0]), idx]
+
+    init = projection[np.arange(idx.shape[0]),idx,:]
+    init = init+X1
+
+    endp = xy[np.arange(idx.shape[0]),idx,:]
+
+
+    cross_product = np.cross(endp-X1, X2-X1)
+    # Calculate the sign of the angle
+    sign = np.sign(cross_product)
+
+
+    opt={'lateral_dev':np.mean(lateral_dev,axis=-1),
+         'max_lateral_dev':max_laterl_dev,
+         'lateral_vel':None}
+    # speed 
+    if vel is not None:
+        vel = np.array(vel)
+        projection = np.sum(line_vector2 * vel, axis=-1)/np.sum(line_vector2 * line_vector2, axis=-1)
+        projection = line_vector2 * projection[:,:,np.newaxis]
+        lateral_vel = np.linalg.norm(vel - projection,axis=2)
+        opt['lateral_vel'] = np.mean(lateral_vel,axis=-1)
+
+
+
+
+    return sign*max_laterl_dev, init, endp, opt
