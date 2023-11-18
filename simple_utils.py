@@ -3,8 +3,8 @@ import json
 import torch as th
 import matplotlib.pyplot as plt
 import motornet as mn
-from task import CentreOutFFMinJerk
-from policy import Policy
+from simple_task import CentreOutFFMinJerk
+from simple_policy import Policy
 
 def plot_training_log(log):
   fig, axs = plt.subplots(1, 1)

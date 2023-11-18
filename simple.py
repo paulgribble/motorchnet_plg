@@ -6,8 +6,8 @@ import numpy as np
 import torch as th
 import matplotlib.pyplot as plt
 import motornet as mn
-from task import CentreOutFFMinJerk
-from policy import Policy
+from simple_task import CentreOutFFMinJerk
+from simple_policy import Policy
 from tqdm import tqdm
 
 print('All packages imported.')
