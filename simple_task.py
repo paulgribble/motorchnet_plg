@@ -63,7 +63,7 @@ class CentreOutFFMinJerk(mn.environment.Environment):
       self.go_cue_time = go_cue_time
 
       # specify movement duration
-      movement_duration = np.random.uniform(0.300, 0.700, batch_size)
+      movement_duration = np.random.uniform(0.400, 0.800, batch_size)
       self.movement_duration = movement_duration
 
     elif (condition=='test'): # centre-out reaches to each target

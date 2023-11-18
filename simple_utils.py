@@ -47,11 +47,12 @@ def plot_simulations(xy, target_xy, figsize=(5,3)):
     return fig, ax
 
 def plot_activation(all_hidden, all_muscles):
-    fig, ax = plt.subplots(nrows=8,ncols=2,figsize=(6,10))
+    n = np.shape(all_muscles)[0]
+    fig, ax = plt.subplots(nrows=n, ncols=2, figsize=(6,10))
 
     x = np.linspace(0, 1, 100)
 
-    for i in range(8):
+    for i in range(n):
         ax[i,0].plot(x,np.array(all_muscles[i,:,:]))
         ax[i,1].plot(x,np.array(all_hidden[i,:,:]))
         
@@ -63,11 +64,12 @@ def plot_activation(all_hidden, all_muscles):
     return fig, ax
 
 def plot_kinematics(all_xy, all_tg, all_vel):
-    fig, ax = plt.subplots(nrows=8,ncols=2,figsize=(6,10))
+    n = np.shape(all_xy)[0]
+    fig, ax = plt.subplots(nrows=n, ncols=2, figsize=(6,10))
 
     x = np.linspace(0, 1, all_xy.size(dim=1))
 
-    for i in range(8):
+    for i in range(n):
         ax[i,0].plot(x,np.array(all_tg[i,:,:]), '--')
         ax[i,0].plot(x,np.array(all_xy[i,:,:]), '-')
         ax[i,1].plot(x,np.array(all_vel[i,:,:]), '-')
@@ -185,15 +187,14 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
   diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
 
 #  loss = position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
-  loss = 10*position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
+  loss = 100*position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
 
 
   angle_loss = None
   lateral_loss = None
-  if test:
-    angle_loss = np.mean(calculate_angles_between_vectors(data['vel'], data['tg'], data['xy']))
-    lateral_loss, _, _, _ = calculate_lateral_deviation(data['xy'], data['tg'])
-    lateral_loss = np.mean(lateral_loss)
+  angle_loss = np.mean(calculate_angles_between_vectors(data['vel'].detach(), data['tg'].detach(), data['xy'].detach()))
+  lateral_loss, _, _, _ = calculate_lateral_deviation(data['xy'].detach(), data['tg'].detach())
+  lateral_loss = np.mean(lateral_loss)
 
   return loss, position_loss, muscle_loss, hidden_loss, angle_loss, lateral_loss
 
