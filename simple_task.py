@@ -165,7 +165,6 @@ class CentreOutFFMinJerk(mn.environment.Environment):
     mask = self.elapsed >= (self.go_cue_time + (self.vision_delay-1) * self.dt)
     self.go_cue[mask] = 1
 
-    obs = self.get_obs(action = noisy_action)
     reward = None
     truncated = False
     terminated = bool(self.elapsed >= self.max_ep_duration)
@@ -177,6 +176,10 @@ class CentreOutFFMinJerk(mn.environment.Environment):
     # use goal if tau > 1.0
     goali[:,0] = th.multiply(goali[:,0],tau<=1.0) + th.multiply(self.goal[:,0],tau>1.0)
     goali[:,1] = th.multiply(goali[:,1],tau<=1.0) + th.multiply(self.goal[:,1],tau>1.0)
+
+    obs = self.get_obs(action = noisy_action)
+    obs[:,0:2] = goali
+
     info = {
       "states": self.states,
       "action": action,
