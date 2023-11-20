@@ -63,7 +63,7 @@ class CentreOutFFMinJerk(mn.environment.Environment):
       self.go_cue_time = go_cue_time
 
       # specify movement duration
-      movement_duration = np.random.uniform(0.400, 0.800, batch_size)
+      movement_duration = th.from_numpy(np.random.uniform(0.400, 0.800, batch_size))
       self.movement_duration = movement_duration
 
     elif (condition=='test'): # centre-out reaches to each target
@@ -169,12 +169,11 @@ class CentreOutFFMinJerk(mn.environment.Environment):
     reward = None
     truncated = False
     terminated = bool(self.elapsed >= self.max_ep_duration)
-    tau = th.from_numpy((self.elapsed-self.go_cue_time) / self.movement_duration)
+    tau =(self.elapsed-self.go_cue_time) / self.movement_duration
     goali = minjerk(self.init,
                     self.goal,
                     tau,
                     ) # MINJERK
-    goali = goali if self.differentiable else goali.detach()
     # use goal if tau > 1.0
     goali[:,0] = th.multiply(goali[:,0],tau<=1.0) + th.multiply(self.goal[:,0],tau>1.0)
     goali[:,1] = th.multiply(goali[:,1],tau<=1.0) + th.multiply(self.goal[:,1],tau>1.0)
