@@ -99,7 +99,7 @@ class CentreOutFFMinJerk(mn.environment.Environment):
       self.go_cue_time = go_cue_time
 
       # specify movement duration
-      movement_duration = np.ones((batch_size)) * self.test_mov_dur
+      movement_duration = th.ones((batch_size)) * self.test_mov_dur
       self.movement_duration = movement_duration
       
     self.effector.reset(options={"batch_size": batch_size,"joint_state": joint_state})
@@ -174,6 +174,7 @@ class CentreOutFFMinJerk(mn.environment.Environment):
                     self.goal,
                     tau,
                     ) # MINJERK
+    goali = goali if self.differentiable else goali.detach()
     # use goal if tau > 1.0
     goali[:,0] = th.multiply(goali[:,0],tau<=1.0) + th.multiply(self.goal[:,0],tau>1.0)
     goali[:,1] = th.multiply(goali[:,1],tau<=1.0) + th.multiply(self.goal[:,1],tau>1.0)
