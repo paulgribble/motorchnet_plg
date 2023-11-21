@@ -189,7 +189,7 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
   diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
 
 #  loss = position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
-  loss = 2*position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
+  loss = 2*position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-3*m_diff_loss
   
   angle_loss = None
   lateral_loss = None
