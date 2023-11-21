@@ -178,24 +178,33 @@ def test(cfg_file, weight_file, ff_coefficient=None):
 
 def cal_loss(data, max_iso_force, dt, policy, test=False):
 
-  # calculate losses
+    # calculate losses
 
-  # Jon's proposed loss function
-  position_loss = th.mean(th.sum(th.abs(data['xy']-data['tg']), dim=-1))
-  muscle_loss = th.mean(th.sum(data['all_force'], dim=-1))
-  m_diff_loss = th.mean(th.sum(th.square(th.diff(data['all_force'], 1, dim=1)), dim=-1))
-  hidden_loss = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
-  diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
+    # Jon's proposed loss function
+    position_loss = th.mean(th.sum(th.abs(data['xy']-data['tg']), dim=-1))
+    muscle_loss = th.mean(th.sum(data['all_force'], dim=-1))
+    m_diff_loss = th.mean(th.sum(th.square(th.diff(data['all_force'], 1, dim=1)), dim=-1))
+    hidden_loss = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
+    diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
 
-  loss = position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
-  
-  angle_loss = None
-  lateral_loss = None
-  angle_loss = np.mean(calculate_angles_between_vectors(data['vel'].detach(), data['tg'].detach(), data['xy'].detach()))
-  lateral_loss, _, _, _ = calculate_lateral_deviation(data['xy'].detach(), data['tg'].detach())
-  lateral_loss = np.mean(lateral_loss)
+    tv = th.sum(th.square(data['vel']),dim=2)
+    jerk = th.diff(th.diff(tv, dim=1)/dt, dim=1)/dt
+    jerk_loss = th.mean(th.square(jerk))
 
-  return loss, position_loss, muscle_loss, hidden_loss, angle_loss, lateral_loss
+    loss = 1e0 * position_loss + \
+          1e-4 * muscle_loss + \
+          5e-5 * hidden_loss + \
+          3e-2 * diff_loss + \
+          1e-4 * m_diff_loss + \
+          1e-7 * jerk_loss
+
+    angle_loss = None
+    lateral_loss = None
+    angle_loss = np.mean(calculate_angles_between_vectors(data['vel'].detach(), data['tg'].detach(), data['xy'].detach()))
+    lateral_loss, _, _, _ = calculate_lateral_deviation(data['xy'].detach(), data['tg'].detach())
+    lateral_loss = np.mean(lateral_loss)
+
+    return loss, position_loss, muscle_loss, hidden_loss, angle_loss, lateral_loss, jerk_loss, diff_loss, m_diff_loss
 
 
 def calculate_angles_between_vectors(vel, tg, xy):
