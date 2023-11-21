@@ -73,7 +73,7 @@ def plot_kinematics(all_xy, all_tg, all_vel):
     for i in range(n):
         ax[i,0].plot(x,np.array(all_tg[i,:,:]), '--')
         ax[i,0].plot(x,np.array(all_xy[i,:,:]), '-')
-        ax[i,1].plot(x[1:],np.array(tgvel[i,:,:]), '--')
+#        ax[i,1].plot(x[1:],np.array(tgvel[i,:,:]), '--')
         ax[i,1].plot(x,np.array(all_vel[i,:,:]), '-')
         
         ax[i,0].set_ylabel('xy,tg')
@@ -187,16 +187,14 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
     hidden_loss = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
     diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
 
-    tv = th.sum(th.square(data['vel']),dim=2)
-    jerk = th.diff(th.diff(tv, dim=1)/dt, dim=1)/dt
-    jerk_loss = th.mean(th.square(jerk[:,5:-5]))
+    jerk_loss = th.mean(th.square(th.diff(th.diff(data['vel'], dim=1)/dt, dim=1)/dt))
 
-    loss = 1e0  * position_loss + \
-          1e-4  * muscle_loss + \
-          5e-5  * hidden_loss + \
-          3e-2  * diff_loss + \
-          1e-4  * m_diff_loss + \
-          1e-5 * jerk_loss
+    loss = 1e+2  * position_loss + \
+           1e-2  * muscle_loss + \
+           1e-3  * hidden_loss + \
+           1e-0  * diff_loss + \
+           1e-2  * m_diff_loss + \
+           1e-3  * jerk_loss
 
     angle_loss = None
     lateral_loss = None
