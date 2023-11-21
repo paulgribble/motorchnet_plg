@@ -187,7 +187,7 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
     hidden_loss = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
     diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
 
-    jerk_loss = th.mean(th.square(th.diff(th.diff(data['vel'], dim=1)/dt, dim=1)/dt))
+    jerk_loss = th.mean(th.sum(th.square(th.diff(input=data['vel'], n=2, dim=1)/dt), dim=-1))
 
     loss = 1e+2  * position_loss + \
            1e-2  * muscle_loss + \
