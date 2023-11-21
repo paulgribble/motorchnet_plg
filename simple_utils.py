@@ -3,7 +3,7 @@ import json
 import torch as th
 import matplotlib.pyplot as plt
 import motornet as mn
-from simple_task import CentreOutFFMinJerk
+from simple_task import CentreOutFF
 from simple_policy import Policy
 
 
@@ -84,13 +84,12 @@ def plot_kinematics(all_xy, all_tg, all_vel):
     return fig, ax
 
 
-def run_episode(env, policy, batch_size=1, catch_trial_perc=50, condition='train', ff_coefficient=None, test_mov_dur=0.500, detach=False):
+def run_episode(env, policy, batch_size=1, catch_trial_perc=50, condition='train', ff_coefficient=None, detach=False):
 
   h = policy.init_hidden(batch_size=batch_size)
   obs, info = env.reset(condition        = condition, 
                         catch_trial_perc = catch_trial_perc, 
                         ff_coefficient   = ff_coefficient, 
-                        test_mov_dur     = test_mov_dur, 
                         options          = {'batch_size': batch_size})
   terminated = False
 
@@ -131,7 +130,7 @@ def run_episode(env, policy, batch_size=1, catch_trial_perc=50, condition='train
   return data
 
 
-def test(cfg_file, weight_file, ff_coefficient=None, test_mov_dur=0.500):
+def test(cfg_file, weight_file, ff_coefficient=None):
 
     device = th.device("cpu")
 
@@ -157,7 +156,7 @@ def test(cfg_file, weight_file, ff_coefficient=None, test_mov_dur=0.500):
     vision_noise = cfg['vision_noise'][0]
     # initialize environment
     max_ep_duration = cfg['max_ep_duration']
-    env = CentreOutFFMinJerk(effector=effector,max_ep_duration=max_ep_duration,name=name,
+    env = CentreOutFF(effector=effector,max_ep_duration=max_ep_duration,name=name,
                action_noise=action_noise,proprioception_noise=proprioception_noise,
                vision_noise=vision_noise,proprioception_delay=proprioception_delay,
                vision_delay=vision_delay)
@@ -172,7 +171,7 @@ def test(cfg_file, weight_file, ff_coefficient=None, test_mov_dur=0.500):
     policy.load_state_dict(w)
 
     # Run episode
-    data = run_episode(env, policy, 8, 0, 'test', ff_coefficient=ff_coefficient, test_mov_dur=test_mov_dur, detach=True)
+    data = run_episode(env, policy, 8, 0, 'test', ff_coefficient=ff_coefficient, detach=True)
     
     return data
 
@@ -188,8 +187,7 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
   hidden_loss = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
   diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
 
-#  loss = position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
-  loss = 2*position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-3*m_diff_loss
+  loss = position_loss + 1e-4*muscle_loss + 5e-5*hidden_loss + 3e-2*diff_loss + 1e-4*m_diff_loss
   
   angle_loss = None
   lateral_loss = None
