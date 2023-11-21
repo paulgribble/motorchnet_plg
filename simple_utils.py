@@ -189,14 +189,14 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
 
     tv = th.sum(th.square(data['vel']),dim=2)
     jerk = th.diff(th.diff(tv, dim=1)/dt, dim=1)/dt
-    jerk_loss = th.mean(th.square(jerk))
+    jerk_loss = th.mean(th.square(jerk[:,5:-5]))
 
-    loss = 1e0 * position_loss + \
-          1e-4 * muscle_loss + \
-          5e-5 * hidden_loss + \
-          3e-2 * diff_loss + \
-          1e-4 * m_diff_loss + \
-          1e-7 * jerk_loss
+    loss = 1e0  * position_loss + \
+          1e-4  * muscle_loss + \
+          5e-5  * hidden_loss + \
+          3e-2  * diff_loss + \
+          1e-4  * m_diff_loss# + \
+          1e-5 * jerk_loss
 
     angle_loss = None
     lateral_loss = None
