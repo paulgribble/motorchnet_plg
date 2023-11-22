@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import motornet as mn
 from simple_task import CentreOutFF
 from simple_policy import Policy
-
+import os
 
 def window_average(x, w=10):
     rows = int(np.size(x)/w) # round to (floor) int
@@ -176,7 +176,7 @@ def test(cfg_file, weight_file, ff_coefficient=None):
     return data
 
 
-def cal_loss(data, max_iso_force, dt, policy, test=False):
+def cal_loss(data, max_iso_force, dt, policy, test=False, loss_weights=None):
 
     # calculate losses
 
@@ -189,12 +189,15 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
 
     jerk_loss = th.mean(th.sum(th.square(th.diff(input=data['vel'], n=2, dim=1)/dt), dim=-1))
 
-    loss = 1e+2  * position_loss + \
-           1e-2  * muscle_loss + \
-           1e-3  * hidden_loss + \
-           1e-0  * diff_loss + \
-           1e-2  * m_diff_loss + \
-           1e+0  * jerk_loss
+    if (loss_weights==None):
+        loss_weights = [1e+2, 1e-2, 1e-3, 1e-0, 1e-2, 1e+0]
+
+    loss = loss_weights[0]  * position_loss + \
+           loss_weights[1]  * muscle_loss + \
+           loss_weights[2]  * hidden_loss + \
+           loss_weights[3]  * diff_loss + \
+           loss_weights[4]  * m_diff_loss + \
+           loss_weights[5]  * jerk_loss
 
     angle_loss = None
     lateral_loss = None
@@ -203,7 +206,7 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
     lateral_loss = np.mean(lateral_loss)
 
     return loss, position_loss, muscle_loss, hidden_loss, angle_loss, lateral_loss, jerk_loss, diff_loss, m_diff_loss
-
+ 
 
 def calculate_angles_between_vectors(vel, tg, xy):
     """
@@ -304,9 +307,13 @@ def calculate_lateral_deviation(xy, tg, vel=None):
 
 
 def save_model(env, policy, losses, model_name, quiet=False):
-    weight_file = model_name + '_weights'
-    log_file    = model_name + '_log.json'
-    cfg_file    = model_name + '_cfg.json'
+    weight_file = os.path.join(model_name, model_name + "_weights")
+    log_file    = os.path.join(model_name, model_name + "_log.json")
+    cfg_file    = os.path.join(model_name, model_name + "_cfg.json")
+
+    print(weight_file)
+    print(log_file)
+    print(cfg_file)
 
     # save model weights
     th.save(policy.state_dict(), weight_file)
@@ -325,3 +332,13 @@ def save_model(env, policy, losses, model_name, quiet=False):
         print(f"saved {log_file}")
         print(f"saved {cfg_file}")
 
+def plot_stuff(data, model_name):
+    fig, ax = plot_simulations(xy=data['xy'], target_xy=data['tg'], figsize=(8,6))
+    fig.savefig(model_name+"fig1.png")
+    plt.close(fig)
+    fig, ax = plot_activation(data['all_hidden'], data['all_muscle'])
+    fig.savefig(model_name+"fig2.png")
+    plt.close(fig)
+    fig, ax = plot_kinematics(all_xy=data["xy"], all_tg=data["tg"], all_vel=data["vel"])
+    fig.savefig(model_name+"fig3.png")
+    plt.close(fig)
