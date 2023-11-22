@@ -40,7 +40,7 @@ def go(model_name, params):
     optimizer = th.optim.Adam(policy.parameters(), lr=10**-3)
 
     batch_size =   128
-    n_batch    = 10
+    n_batch    = 50000
     interval   =   100
 
     losses = {
