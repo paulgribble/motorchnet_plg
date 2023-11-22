@@ -2,7 +2,7 @@
 
 d1=`date +"%Y-%m-%d %H:%M:%S"`
 
-python simple.py
+python simple.py $1 $2
 
 d2=`date +"%Y-%m-%d %H:%M:%S"`
 
