@@ -23,10 +23,8 @@ print('motornet version: ' + mn.__version__)
 
 device = th.device("cpu")
 
-def go(model_name, params):
+def go(model_name, loss_weights, jw):
 
-    loss_weights = [1e+2, 1e-2, 1e-3, 1e-0, 1e-2, 1e+0]
-    jw = params
     loss_weights[5] = jw
 
     model_name = model_name + str(jw)
@@ -91,8 +89,8 @@ def go(model_name, params):
     plot_stuff(data, model_name + "/" + model_name)
 
 if __name__ == "__main__":
-    loss_weights = [1e+2, 1e-2, 1e-3, 1e-0, 1e-2, 1e+0]
+    loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
     jerk_weights = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2]
     model_name = "jerk_"
-    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name, jw) for jw in jerk_weights)
+    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name, loss_weights, jw) for jw in jerk_weights)
 
