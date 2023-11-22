@@ -187,7 +187,9 @@ def cal_loss(data, max_iso_force, dt, policy, test=False, loss_weights=None):
     hidden_loss = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
     diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
 
-    jerk_loss = th.mean(th.sum(th.square(th.diff(input=data['vel'], n=2, dim=1)/dt), dim=-1))
+    acc = th.diff(input=data['vel'], n=1, dim=1)/dt
+    jerk = th.diff(input=acc, n=1, dim=1)/dt
+    jerk_loss = th.mean(th.sum(th.square(jerk), dim=-1))
 
     if (loss_weights==None):
         loss_weights = [1e+2, 1e-2, 1e-3, 1e-0, 1e-2, 5e+0]

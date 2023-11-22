@@ -92,7 +92,7 @@ def go(model_name, params):
 
 if __name__ == "__main__":
     loss_weights = [1e+2, 1e-2, 1e-3, 1e-0, 1e-2, 1e+0]
-    jerk_weights = [1e-4,5e-4,1e-3,5e-3,1e-2,5e-2,1e-1,5e-1,1e0,5e0,1e1,5e1,1e2,5e2,1e3,5e3]
+    jerk_weights = [0.001, 0.010, 0.100, 1.000, 10.00]
     model_name = "jerk_"
     result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name, jw) for jw in jerk_weights)
 
