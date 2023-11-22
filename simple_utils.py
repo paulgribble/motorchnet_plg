@@ -194,7 +194,7 @@ def cal_loss(data, max_iso_force, dt, policy, test=False):
            1e-3  * hidden_loss + \
            1e-0  * diff_loss + \
            1e-2  * m_diff_loss + \
-           1e-3  * jerk_loss
+           1e+0  * jerk_loss
 
     angle_loss = None
     lateral_loss = None
