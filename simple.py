@@ -23,7 +23,7 @@ print('motornet version: ' + mn.__version__)
 
 device = th.device("cpu")
 
-def go(model_name, loss_weights, jw):
+def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
 
     loss_weights[5] = jw
 
@@ -37,8 +37,6 @@ def go(model_name, loss_weights, jw):
     policy = Policy(env.observation_space.shape[0], 128, env.n_muscles, device=device)
     optimizer = th.optim.Adam(policy.parameters(), lr=10**-3)
 
-    batch_size =   256
-    n_batch    = 20000
     interval   =   100
 
     losses = {
@@ -92,5 +90,7 @@ if __name__ == "__main__":
     loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
     jerk_weights = [0.0001, 0.0005, 0.0010, 0.0020, 0.0050, 0.0100, 0.0200, 0.0500, 0.0750, 0.1000]
     model_name = "jerk_"
-    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name, loss_weights, jw) for jw in jerk_weights)
+    n_batch = int(argv[1])
+    batch_size = int(argv[2])
+    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name=model_name, loss_weights=loss_weights, jw=jw, n_batch=n_batch, batch_size=batch_size) for jw in jerk_weights)
 
