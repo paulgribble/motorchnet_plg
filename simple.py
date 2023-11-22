@@ -37,7 +37,7 @@ def go(model_name, loss_weights, jw):
     policy = Policy(env.observation_space.shape[0], 128, env.n_muscles, device=device)
     optimizer = th.optim.Adam(policy.parameters(), lr=10**-3)
 
-    batch_size =   128
+    batch_size =   256
     n_batch    = 20000
     interval   =   100
 
@@ -90,7 +90,7 @@ def go(model_name, loss_weights, jw):
 
 if __name__ == "__main__":
     loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
-    jerk_weights = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2]
+    jerk_weights = [0.0001, 0.0005, 0.0010, 0.0020, 0.0050, 0.0100, 0.0200, 0.0500, 0.0750, 0.1000]
     model_name = "jerk_"
     result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name, loss_weights, jw) for jw in jerk_weights)
 
