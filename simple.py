@@ -25,7 +25,13 @@ device = th.device("cpu")
 
 def go(model_name, params):
 
-    loss_weights = params
+    loss_weights = [1e+2, 1e-2, 1e-3, 1e-0, 1e-2, 1e+0]
+    jw = params
+    loss_weights[5] = jw
+
+    model_name = model_name + str(jw)
+    if (not os.path.exists(model_name)):
+        os.mkdir(model_name)
 
     effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.RigidTendonHillMuscle())
     env = CentreOutFF(effector=effector, max_ep_duration=1.)
@@ -86,12 +92,7 @@ def go(model_name, params):
 
 if __name__ == "__main__":
     loss_weights = [1e+2, 1e-2, 1e-3, 1e-0, 1e-2, 1e+0]
-    jerk_weight = float(sys.argv[1])
-    loss_weights[5] = jerk_weight
-    model_name = "simple_" + sys.argv[1]
-    if (not os.path.exists(model_name)):
-        os.mkdir(model_name)
-    print(loss_weights)
-    print(model_name)
-    go(model_name, loss_weights)
+    jerk_weights = [1e-4,5e-4,1e-3,5e-3,1e-2,5e-2,1e-1,5e-1,1e0,5e0,1e1,5e1,1e2,5e2,1e3,5e3]
+    model_name = "jerk_"
+    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name, jw) for jw in jerk_weights)
 

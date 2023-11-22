@@ -334,11 +334,11 @@ def save_model(env, policy, losses, model_name, quiet=False):
 
 def plot_stuff(data, model_name):
     fig, ax = plot_simulations(xy=data['xy'], target_xy=data['tg'], figsize=(8,6))
-    fig.savefig(model_name+"fig1.png")
+    fig.savefig(model_name+"_fig1.png")
     plt.close(fig)
     fig, ax = plot_activation(data['all_hidden'], data['all_muscle'])
-    fig.savefig(model_name+"fig2.png")
+    fig.savefig(model_name+"_fig2.png")
     plt.close(fig)
     fig, ax = plot_kinematics(all_xy=data["xy"], all_tg=data["tg"], all_vel=data["vel"])
-    fig.savefig(model_name+"fig3.png")
+    fig.savefig(model_name+"_fig3.png")
     plt.close(fig)
