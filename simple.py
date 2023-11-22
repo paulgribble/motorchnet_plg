@@ -90,7 +90,7 @@ if __name__ == "__main__":
     loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
     jerk_weights = [0.0001, 0.0005, 0.0010, 0.0020, 0.0050, 0.0100, 0.0200, 0.0500, 0.0750, 0.1000]
     model_name = "jerk_"
-    n_batch = int(argv[1])
-    batch_size = int(argv[2])
+    n_batch = int(sys.argv[1])
+    batch_size = int(sys.argv[2])
     result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name=model_name, loss_weights=loss_weights, jw=jw, n_batch=n_batch, batch_size=batch_size) for jw in jerk_weights)
 
