@@ -84,7 +84,7 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
     with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
         pickle.dump(data, f)
     with open(model_name + "/" + model_name + "_losses.txt", "a") as f:
-        print(f"loss:{th.mean(loss):0.5f}, position_loss:{th.mean(position_loss)*1e2:0.5f}, hidden_loss:{th.mean(hidden_loss)*1e-3:0.5f}, jerk_loss:{th.mean(jerk_loss)*1e+0:0.5f}, diff_loss:{th.mean(diff_loss)*1e-0:0.5f}, m_diff_loss:{th.mean(m_diff_loss)*1e-2:0.5f}, ", file=f)
+        print(f"batch: {batch}, loss:{th.mean(loss):0.5f}, position_loss:{th.mean(position_loss)*1e2:0.5f}, hidden_loss:{th.mean(hidden_loss)*1e-3:0.5f}, jerk_loss:{th.mean(jerk_loss)*1e+0:0.5f}, diff_loss:{th.mean(diff_loss)*1e-0:0.5f}, m_diff_loss:{th.mean(m_diff_loss)*1e-2:0.5f}, ", file=f)
     data = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
     plot_stuff(data, model_name + "/" + model_name)
 
