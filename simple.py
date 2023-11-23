@@ -90,7 +90,7 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
 
 if __name__ == "__main__":
     loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
-    jerk_weights = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1]
+    jerk_weights = [1e-4, 2e-4, 3e-4, 4e-4, 5e-4, 6e-4, 7e-4, 8e-4, 9e-4, 1e-3]
     model_name = "jerk_"
     n_batch = int(sys.argv[1])
     batch_size = int(sys.argv[2])
