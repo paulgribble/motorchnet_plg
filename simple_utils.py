@@ -207,7 +207,7 @@ def cal_loss(data, dt, loss_weights=None):
 
     if (loss_weights==None):
         # loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
-        loss_weights = [1   , 1e-4, 0   , 1e-5, 1e-2, 7e+2]
+        loss_weights = [1, 1e-4, 0, 3e-5, 2e-2, 2e2]
 
     losses_weighted = {
         'position'            : loss_weights[0] * loss['position'],
