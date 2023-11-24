@@ -43,9 +43,9 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
         'overall': [],
         'position': [],
         'muscle': [],
-        'm_diff': [],
+        'muscle_derivative': [],
         'hidden': [],
-        'diff': [],
+        'hidden_derivative': [],
         'jerk' : []}
 
     for batch in tqdm(range(n_batch),
@@ -72,11 +72,11 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
 
         # Update loss values in the dictionary
         losses['overall'].append(loss.item())
-        losses['position'].append(losses_weighted['position_loss'].item())
-        losses['muscle'].append(losses_weighted['muscle_loss'].item())
-        losses['m_diff'].append(losses_weighted['m_diff_loss'].item())
-        losses['hidden'].append(losses_weighted['hidden_loss'].item())
-        losses['diff'].append(losses_weighted['diff_loss'].item())
+        losses['position'].append(losses_weighted['position'].item())
+        losses['muscle'].append(losses_weighted['muscle'].item())
+        losses['muscle_derivative'].append(losses_weighted['muscle_derivative'].item())
+        losses['hidden'].append(losses_weighted['hidden'].item())
+        losses['hidden_derivative'].append(losses_weighted['hidden_derivative'].item())
         losses['jerk'].append(losses_weighted['jerk_loss'].item())
 
     save_model(env, policy, losses, model_name)
@@ -87,8 +87,8 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
     plot_stuff(data, model_name + "/" + model_name)
 
 if __name__ == "__main__":
-    loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
-    jerk_weights = [0.001, 0.001, 0.005, 0.005, 0.010, 0.010, 0.015, 0.015, 0.020, 0.020]
+    loss_weights = [1   , 1e-4, 0   , 1e-5, 1e-2, 7e+2]
+    jerk_weights = [50, 100, 150, 200, 250, 300, 350, 400]
     model_name = "jerk_"
     n_batch = int(sys.argv[1])
     batch_size = int(sys.argv[2])
