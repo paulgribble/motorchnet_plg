@@ -176,7 +176,7 @@ def test(cfg_file, weight_file, ff_coefficient=None):
     return data
 
 
-def cal_loss(data, max_iso_force, dt, policy, test=False, loss_weights=None):
+def cal_loss(data, dt, loss_weights=None):
 
     # calculate losses
 
@@ -194,12 +194,21 @@ def cal_loss(data, max_iso_force, dt, policy, test=False, loss_weights=None):
     if (loss_weights==None):
         loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
 
-    loss = loss_weights[0]  * position_loss + \
-           loss_weights[1]  * muscle_loss + \
-           loss_weights[2]  * hidden_loss + \
-           loss_weights[3]  * diff_loss + \
-           loss_weights[4]  * m_diff_loss + \
-           loss_weights[5]  * jerk_loss
+    loss = loss_weights[0] * position_loss + \
+           loss_weights[1] * muscle_loss + \
+           loss_weights[2] * hidden_loss + \
+           loss_weights[3] * diff_loss + \
+           loss_weights[4] * m_diff_loss + \
+           loss_weights[5] * jerk_loss
+
+    losses_weighted = {
+        'position_loss' : loss_weights[0] * position_loss,
+        'muscle_loss'   : loss_weights[1] * muscle_loss,
+        'hidden_loss'   : loss_weights[2] * hidden_loss,
+        'diff_loss'     : loss_weights[3] * diff_loss,
+        'm_diff_loss'   : loss_weights[4] * m_diff_loss,
+        'jerk_loss'     : loss_weights[5] * jerk_loss
+        }
 
     angle_loss = None
     lateral_loss = None
@@ -207,13 +216,16 @@ def cal_loss(data, max_iso_force, dt, policy, test=False, loss_weights=None):
     lateral_loss, _, _, _ = calculate_lateral_deviation(data['xy'].detach(), data['tg'].detach())
     lateral_loss = np.mean(lateral_loss)
 
-    return loss, position_loss, muscle_loss, hidden_loss, angle_loss, lateral_loss, jerk_loss, diff_loss, m_diff_loss
+    return loss, losses_weighted
  
 
-def print_losses(loss_values, loss_weights, model_name, batch):
-    fstring = f"batch: {batch}, "
-    for l in loss_values.keys():
-        fstring = fstring + f"{l}: {loss_values[l]:.5f}, "
+def print_losses(losses_weighted, model_name, batch):
+    overall_loss = 0.0
+    for l in losses_weighted.keys():
+        overall_loss += losses_weighted[l]
+    fstring = f"batch: {batch}, overall_loss: {overall_loss:.5f}, "
+    for l in losses_weighted.keys():
+        fstring = fstring + f"{l}: {losses_weighted[l]:.5f}, "
     with open(model_name + "/" + model_name + "_losses.txt", "a") as f:
         print(fstring[:-2], file=f)
 

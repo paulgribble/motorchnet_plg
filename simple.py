@@ -42,10 +42,10 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
     losses = {
         'overall': [],
         'position': [],
-        'angle': [],
-        'lateral': [],
         'muscle': [],
+        'm_diff': [],
         'hidden': [],
+        'diff': [],
         'jerk' : []}
 
     for batch in tqdm(range(n_batch),
@@ -53,7 +53,7 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
                     unit="batch"):
 
         data = run_episode(env, policy, batch_size, catch_trial_perc=50, condition='train', ff_coefficient=0.0, detach=False)
-        loss, position_loss, muscle_loss, hidden_loss, angle_loss, lateral_loss, jerk_loss, diff_loss, m_diff_loss = cal_loss(data, env.muscle.max_iso_force, env.dt, policy, test=False, loss_weights=loss_weights)
+        loss, losses_weighted = cal_loss(data, env.dt, loss_weights=loss_weights)
 
         # backward pass & update weights
         optimizer.zero_grad() 
@@ -66,25 +66,23 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
             save_model(env, policy, losses, model_name, quiet=True)
             with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
                 pickle.dump(data, f)
-            with open(model_name + "/" + model_name + "_losses.txt", "a") as f:
-                print(f"batch: {batch}, loss:{th.mean(loss):0.5f}, position_loss:{th.mean(position_loss)*1e2:0.5f}, hidden_loss:{th.mean(hidden_loss)*1e-3:0.5f}, jerk_loss:{th.mean(jerk_loss)*1e+0:0.5f}, diff_loss:{th.mean(diff_loss)*1e-0:0.5f}, m_diff_loss:{th.mean(m_diff_loss)*1e-2:0.5f}, ", file=f)
+            print_losses(losses_weighted=losses_weighted, model_name=model_name, batch=batch)
             data = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
             plot_stuff(data, model_name + "/" + model_name)
 
         # Update loss values in the dictionary
         losses['overall'].append(loss.item())
-        losses['position'].append(position_loss.item())
-        losses['angle'].append(angle_loss.item())
-        losses['lateral'].append(lateral_loss.item())
-        losses['muscle'].append(muscle_loss.item())
-        losses['hidden'].append(hidden_loss.item())
-        losses['jerk'].append(jerk_loss.item())
+        losses['position'].append(losses_weighted['position_loss'].item())
+        losses['muscle'].append(losses_weighted['muscle_loss'].item())
+        losses['m_diff'].append(losses_weighted['m_diff_loss'].item())
+        losses['hidden'].append(losses_weighted['hidden_loss'].item())
+        losses['diff'].append(losses_weighted['diff_loss'].item())
+        losses['jerk'].append(losses_weighted['jerk_loss'].item())
 
     save_model(env, policy, losses, model_name)
     with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
         pickle.dump(data, f)
-    with open(model_name + "/" + model_name + "_losses.txt", "a") as f:
-        print(f"batch: {batch}, loss:{th.mean(loss):0.5f}, position_loss:{th.mean(position_loss)*1e2:0.5f}, hidden_loss:{th.mean(hidden_loss)*1e-3:0.5f}, jerk_loss:{th.mean(jerk_loss)*1e+0:0.5f}, diff_loss:{th.mean(diff_loss)*1e-0:0.5f}, m_diff_loss:{th.mean(m_diff_loss)*1e-2:0.5f}, ", file=f)
+    print_losses(losses_weighted=losses_weighted, model_name=model_name, batch=batch)
     data = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
     plot_stuff(data, model_name + "/" + model_name)
 
