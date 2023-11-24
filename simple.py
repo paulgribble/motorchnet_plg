@@ -88,8 +88,8 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
 
 if __name__ == "__main__":
     loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
-    jerk_weights = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
+    jerk_weights = [0.001, 0.001, 0.005, 0.005, 0.010, 0.010, 0.015, 0.015, 0.020, 0.020]
     model_name = "jerk_"
     n_batch = int(sys.argv[1])
     batch_size = int(sys.argv[2])
-    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name=model_name, loss_weights=loss_weights, jw=jw, n_batch=n_batch, batch_size=batch_size) for jw in jerk_weights)
+    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name=model_name+str(idx)+"_", loss_weights=loss_weights, jw=jw, n_batch=n_batch, batch_size=batch_size) for idx,jw in enumerate(jerk_weights))
