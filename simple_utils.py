@@ -211,19 +211,15 @@ def cal_loss(data, dt=0.01, loss_weights=None):
 
     loss = 0.0
     for l in loss_values.keys():
-        loss += loss_values[l]
-    loss_values["overall_loss"] = loss
-
+        loss_values[l] += loss_values[l] * loss_weights[l]
     for l in loss_values.keys():
-        loss_values[l] = float(loss_values[l].detach())
+        loss_values['overall_loss'] += loss_values[l]
+    loss = loss_values['overall_loss']
 
     return loss, loss_values, loss_weights
 
 
-def print_losses(loss_values, loss_weights, model_name, batch, weighted=True):
-    if weighted:
-        for l in loss_values.keys():
-            loss_values[l] = loss_values[l] * loss_weights[l]
+def print_losses(loss_values, loss_weights, model_name, batch):
     fstring = f"batch: {batch}, "
     for l in loss_values.keys():
         fstring = fstring + f"{l}: {loss_values[l]:.5f}, "
