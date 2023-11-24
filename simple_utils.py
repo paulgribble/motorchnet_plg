@@ -220,11 +220,13 @@ def cal_loss(data, dt=0.01, loss_weights=None):
     return loss, loss_values, loss_weights
 
 
-def print_losses(loss_values, loss_weights, model_name, batch):
-    total_loss = loss_values["overall_loss"]
+def print_losses(loss_values, loss_weights, model_name, batch, weighted=True):
+    if weighted:
+        for l in loss_values.keys():
+            loss_values[l] = loss_values[l] * loss_weights[l]
     fstring = f"batch: {batch}, "
     for l in loss_values.keys():
-        fstring = fstring + f"{l}: {loss_values[l]:.3f}, "
+        fstring = fstring + f"{l}: {loss_values[l]:.5f}, "
     with open(model_name + "/" + model_name + "_losses.txt", "a") as f:
         print(fstring[:-2], file=f)
 

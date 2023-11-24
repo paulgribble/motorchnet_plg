@@ -64,7 +64,7 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
             save_model(env, policy, losses, model_name, quiet=True)
             with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
                 pickle.dump(data, f)
-            print_losses(loss_values, loss_weights, model_name, batch)
+            print_losses(loss_values, loss_weights, model_name, batch, weighted=True)
             data = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
             plot_stuff(data, model_name + "/" + model_name)
 
@@ -74,7 +74,7 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
     save_model(env, policy, losses, model_name)
     with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
         pickle.dump(data, f)
-    print_losses(loss_values, loss_weights, model_name, batch)
+    print_losses(loss_values, loss_weights, model_name, batch, weighted=True)
     data = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
     plot_stuff(data, model_name + "/" + model_name)
 
