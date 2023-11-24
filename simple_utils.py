@@ -190,7 +190,8 @@ def cal_loss(data, dt=0.01, loss_weights=None):
     jerk = th.diff(input=acc, n=1, dim=1)/dt
     jerk_loss = th.mean(th.sum(th.square(jerk), dim=-1))
 
-    loss_values = {'position_loss'    : position_loss,
+    loss_values = {'overall_loss'     : 0.0,
+                   'position_loss'    : position_loss,
                    'muscle_loss'      : muscle_loss,
                    'hidden_loss'      : hidden_loss,
                    'hidden_diff_loss' : hidden_diff_loss,
@@ -199,7 +200,8 @@ def cal_loss(data, dt=0.01, loss_weights=None):
                    }
 
     if (loss_weights==None):
-        loss_weights = {'position_loss'    : 1e+2,
+        loss_weights = {'overall_loss'     : 1e0,
+                        'position_loss'    : 1e+2,
                         'muscle_loss'      : 1e-2,
                         'hidden_loss'      : 1e-4,
                         'hidden_diff_loss' : 1e-0,
@@ -210,8 +212,22 @@ def cal_loss(data, dt=0.01, loss_weights=None):
     loss = 0.0
     for l in loss_values.keys():
         loss += loss_values[l]
+    loss_values["overall_loss"] = loss
+
+    for l in loss_values.keys():
+        loss_values[l] = float(loss_values[l].detach())
 
     return loss, loss_values, loss_weights
+
+
+def print_losses(loss_values, loss_weights, model_name, batch):
+    total_loss = loss_values["overall_loss"]
+    fstring = f"batch: {batch}, "
+    for l in loss_values.keys():
+        fstring = fstring + f"{l}: {loss_values[l]:.3f}, "
+    with open(model_name + "/" + model_name + "_losses.txt", "a") as f:
+        print(fstring[:-2], file=f)
+
 
 
 def calculate_angles_between_vectors(vel, tg, xy):
