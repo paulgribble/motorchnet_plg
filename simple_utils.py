@@ -176,48 +176,39 @@ def test(cfg_file, weight_file, ff_coefficient=None):
     return data
 
 
-def cal_loss(data, dt=0.01, loss_weights=None):
+def cal_loss(data, max_iso_force, dt, policy, test=False, loss_weights=None):
 
     # calculate losses
 
     # Jon's proposed loss function
     position_loss = th.mean(th.sum(th.abs(data['xy']-data['tg']), dim=-1))
     muscle_loss = th.mean(th.sum(data['all_force'], dim=-1))
-    muscle_diff_loss = th.mean(th.sum(th.square(th.diff(data['all_force'], 1, dim=1)), dim=-1))
+    m_diff_loss = th.mean(th.sum(th.square(th.diff(data['all_force'], 1, dim=1)), dim=-1))
     hidden_loss = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
-    hidden_diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
+    diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
+
     acc = th.diff(input=data['vel'], n=1, dim=1)/dt
     jerk = th.diff(input=acc, n=1, dim=1)/dt
     jerk_loss = th.mean(th.sum(th.square(jerk), dim=-1))
 
-    loss_values = {'overall_loss'     : 0.0,
-                   'position_loss'    : position_loss,
-                   'muscle_loss'      : muscle_loss,
-                   'hidden_loss'      : hidden_loss,
-                   'hidden_diff_loss' : hidden_diff_loss,
-                   'muscle_diff_loss' : muscle_diff_loss,
-                   'jerk_loss'        : jerk_loss,
-                   }
-
     if (loss_weights==None):
-        loss_weights = {'overall_loss'     : 1e0,
-                        'position_loss'    : 1e+2,
-                        'muscle_loss'      : 1e-2,
-                        'hidden_loss'      : 1e-4,
-                        'hidden_diff_loss' : 1e-0,
-                        'muscle_diff_loss' : 1e-2,
-                        'jerk_loss'        : 1e-4,
-                        }
+        loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
 
-    loss = 0.0
-    for l in loss_values.keys():
-        loss_values[l] += loss_values[l] * loss_weights[l]
-    for l in loss_values.keys():
-        loss_values['overall_loss'] += loss_values[l]
-    loss = loss_values['overall_loss']
+    loss = loss_weights[0]  * position_loss + \
+           loss_weights[1]  * muscle_loss + \
+           loss_weights[2]  * hidden_loss + \
+           loss_weights[3]  * diff_loss + \
+           loss_weights[4]  * m_diff_loss + \
+           loss_weights[5]  * jerk_loss
 
-    return loss, loss_values, loss_weights
+    angle_loss = None
+    lateral_loss = None
+    angle_loss = np.mean(calculate_angles_between_vectors(data['vel'].detach(), data['tg'].detach(), data['xy'].detach()))
+    lateral_loss, _, _, _ = calculate_lateral_deviation(data['xy'].detach(), data['tg'].detach())
+    lateral_loss = np.mean(lateral_loss)
 
+    return loss, position_loss, muscle_loss, hidden_loss, angle_loss, lateral_loss, jerk_loss, diff_loss, m_diff_loss
+ 
 
 def print_losses(loss_values, loss_weights, model_name, batch):
     fstring = f"batch: {batch}, "
