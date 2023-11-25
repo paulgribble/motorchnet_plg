@@ -85,8 +85,14 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
     plot_stuff(data, model_name + "/" + model_name, batch=batch)
 
 if __name__ == "__main__":
-    jerk_weights = [0,0,0,0,200,200,200,200]
+    jerk_weights = [0,0,100,100,1000,1000,10000,10000]
     model_name = "jerk_"
     n_batch = int(sys.argv[1])
     batch_size = int(sys.argv[2])
-    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name=model_name+str(idx)+"_", jw=jw, n_batch=n_batch, batch_size=batch_size) for idx,jw in enumerate(jerk_weights))
+    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name=model_name+str(idx)+"_", 
+                                                            jw=jw, 
+                                                            n_batch=n_batch, 
+                                                            batch_size=batch_size
+                                                            ) for idx,jw in enumerate(jerk_weights))
+
+
