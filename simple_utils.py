@@ -208,9 +208,9 @@ def cal_loss(data, dt, loss_weights):
     losses_weighted = {
         'position'            : loss_weights[0] * loss['position'],
         'muscle'              : loss_weights[1] * loss['muscle'],
-        'muscle_derivative'   : loss_weights[4] * loss['muscle_derivative'],
-        'hidden'              : loss_weights[2] * loss['hidden'],
-        'hidden_derivative'   : loss_weights[3] * loss['hidden_derivative'],
+        'muscle_derivative'   : loss_weights[2] * loss['muscle_derivative'],
+        'hidden'              : loss_weights[3] * loss['hidden'],
+        'hidden_derivative'   : loss_weights[4] * loss['hidden_derivative'],
         'jerk_loss'           : loss_weights[5] * loss['jerk']
         }
 
