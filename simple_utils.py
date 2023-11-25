@@ -176,7 +176,6 @@ def test(cfg_file, weight_file, ff_coefficient=None):
     
     return data, losses_weighted
 
-
 def cal_loss(data, params=None):
 
     loss = {'position': None,
