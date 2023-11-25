@@ -730,7 +730,7 @@ class RigidTendonArm26(Effector):
     self.a2 = Parameter(th.tensor(np.array(a2).reshape((1, 2, 6)), dtype=th.float32), requires_grad=False)
     self.a3 = Parameter(th.tensor(np.array(a3).reshape((1, 2, 1)), dtype=th.float32), requires_grad=False)
 
-  th.compile()
+  @th.compile(mode='max-autotune')
   def _get_geometry(self, joint_state):
     old_pos, old_vel = joint_state[:, :, None].chunk(2, dim=1)
     old_pos = old_pos - self.a3

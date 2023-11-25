@@ -122,6 +122,7 @@ class CentreOutFF(mn.environment.Environment):
       }
     return obs, info
 
+
   def step(self, action, deterministic: bool = False, **kwargs):
     self.elapsed += self.dt
 
