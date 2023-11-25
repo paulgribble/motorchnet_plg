@@ -23,9 +23,7 @@ print('motornet version: ' + mn.__version__)
 
 device = th.device("cpu")
 
-def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
-
-    loss_weights[5] = jw
+def go(model_name, jw, n_batch=20000, batch_size=256):
 
     model_name = model_name + str(jw)
     if (not os.path.exists(model_name)):
@@ -53,7 +51,7 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
                     unit="batch"):
 
         data = run_episode(env, policy, batch_size, catch_trial_perc=50, condition='train', ff_coefficient=0.0, detach=False)
-        loss, losses_weighted = cal_loss(data, env.dt, loss_weights=loss_weights)
+        loss, losses_weighted = cal_loss(data, {'jw':jw})
 
         # backward pass & update weights
         optimizer.zero_grad() 
@@ -87,9 +85,8 @@ def go(model_name, loss_weights, jw, n_batch=20000, batch_size=256):
     plot_stuff(data, model_name + "/" + model_name)
 
 if __name__ == "__main__":
-    loss_weights = [1, 1e-4, 0, 3e-5, 2e-2, 2e2]
     jerk_weights = [0, 50, 100, 200, 400, 0, 50, 100, 200, 400]
     model_name = "jerk_"
     n_batch = int(sys.argv[1])
     batch_size = int(sys.argv[2])
-    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name=model_name+str(idx)+"_", loss_weights=loss_weights, jw=jw, n_batch=n_batch, batch_size=batch_size) for idx,jw in enumerate(jerk_weights))
+    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name=model_name+str(idx)+"_", jw=jw, n_batch=n_batch, batch_size=batch_size) for idx,jw in enumerate(jerk_weights))
