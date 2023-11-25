@@ -178,18 +178,6 @@ def test(cfg_file, weight_file, ff_coefficient=None):
 
 def cal_loss(data, params):
 
-    # calculate losses
-
-    # Jon's proposed loss function
-    # position_loss = th.mean(th.sum(th.abs(data['xy']-data['tg']), dim=-1))
-    # muscle_loss = th.mean(th.sum(data['all_force'], dim=-1))
-    # m_diff_loss = th.mean(th.sum(th.square(th.diff(data['all_force'], 1, dim=1)), dim=-1))
-    # hidden_loss = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
-    # diff_loss =  th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
-    # acc = th.diff(input=data['vel'], n=1, dim=1)/dt
-    # jerk = th.diff(input=acc, n=1, dim=1)/dt
-    # jerk_loss = th.mean(th.sum(th.square(jerk), dim=-1))
-
     loss = {'position': None,
             'muscle'  : None,
             'muscle_derivative' : None,
@@ -220,12 +208,6 @@ def cal_loss(data, params):
     overall_loss = 0.0
     for l in losses_weighted.keys():
         overall_loss += losses_weighted[l]
-
-    # angle_loss = None
-    # lateral_loss = None
-    # angle_loss = np.mean(calculate_angles_between_vectors(data['vel'].detach(), data['tg'].detach(), data['xy'].detach()))
-    # lateral_loss, _, _, _ = calculate_lateral_deviation(data['xy'].detach(), data['tg'].detach())
-    # lateral_loss = np.mean(lateral_loss)
 
     return overall_loss, losses_weighted
  
