@@ -66,7 +66,7 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
                 pickle.dump(data, f)
             print_losses(losses_weighted=losses_weighted, model_name=model_name, batch=batch)
             data, _ = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
-            plot_stuff(data, model_name + "/" + model_name)
+            plot_stuff(data, model_name + "/" + model_name, batch=batch)
 
         # Update loss values in the dictionary
         losses['overall'].append(loss.item())
@@ -82,7 +82,7 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
         pickle.dump(data, f)
     print_losses(losses_weighted=losses_weighted, model_name=model_name, batch=batch)
     data, _ = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
-    plot_stuff(data, model_name + "/" + model_name)
+    plot_stuff(data, model_name + "/" + model_name, batch=batch)
 
 if __name__ == "__main__":
     jerk_weights = [0, 50, 100, 200, 400, 0, 50, 100, 200, 400]

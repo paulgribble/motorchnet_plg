@@ -352,13 +352,19 @@ def save_model(env, policy, losses, model_name, quiet=False):
         print(f"saved {log_file}")
         print(f"saved {cfg_file}")
 
-def plot_stuff(data, model_name):
+def plot_stuff(data, model_name, batch=None):
     fig, ax = plot_simulations(xy=data['xy'], target_xy=data['tg'], figsize=(8,6))
+    if (not batch==None):
+        fig.suptitle(f"batch={batch}")
     fig.savefig(model_name+"_fig1.png")
     plt.close(fig)
     fig, ax = plot_activation(data['all_hidden'], data['all_muscle'])
+    if (not batch==None):
+        fig.suptitle(f"batch={batch}")
     fig.savefig(model_name+"_fig2.png")
     plt.close(fig)
     fig, ax = plot_kinematics(all_xy=data["xy"], all_tg=data["tg"], all_vel=data["vel"])
+    if (not batch==None):
+        fig.suptitle(f"batch={batch}")
     fig.savefig(model_name+"_fig3.png")
     plt.close(fig)
