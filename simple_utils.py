@@ -176,7 +176,7 @@ def test(cfg_file, weight_file, ff_coefficient=None):
     return data
 
 
-def cal_loss(data, dt, loss_weights=None):
+def cal_loss(data, dt, loss_weights):
 
     # calculate losses
 
@@ -204,10 +204,6 @@ def cal_loss(data, dt, loss_weights=None):
     loss['hidden'] = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
     loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
     loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)), dim=-1))
-
-    if (loss_weights==None):
-        # loss_weights = [1e+2, 1e-2, 1e-4, 1e-0, 1e-2, 1e-3]
-        loss_weights = [1, 1e-4, 0, 3e-5, 2e-2, 2e2]
 
     losses_weighted = {
         'position'            : loss_weights[0] * loss['position'],
