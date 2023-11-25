@@ -356,15 +356,18 @@ def plot_stuff(data, model_name, batch=None):
     fig, ax = plot_simulations(xy=data['xy'], target_xy=data['tg'], figsize=(8,6))
     if (not batch==None):
         fig.suptitle(f"batch={batch}")
-    fig.savefig(model_name+"_fig1.png")
+    fig.tight_layout()
+    fig.savefig(model_name+"_"+"handpaths_"+str(batch)+"-"+".png")
     plt.close(fig)
     fig, ax = plot_activation(data['all_hidden'], data['all_muscle'])
     if (not batch==None):
         fig.suptitle(f"batch={batch}")
-    fig.savefig(model_name+"_fig2.png")
+    fig.tight_layout()
+    fig.savefig(model_name+"_"+"muscles_"+str(batch)+"-"+".png")
     plt.close(fig)
     fig, ax = plot_kinematics(all_xy=data["xy"], all_tg=data["tg"], all_vel=data["vel"])
     if (not batch==None):
         fig.suptitle(f"batch={batch}")
-    fig.savefig(model_name+"_fig3.png")
+    fig.tight_layout()
+    fig.savefig(model_name+"_"+"kinematics_"+str(batch)+"-"+".png")
     plt.close(fig)

@@ -35,7 +35,7 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
     policy = Policy(env.observation_space.shape[0], 128, env.n_muscles, device=device)
     optimizer = th.optim.Adam(policy.parameters(), lr=10**-3)
 
-    interval   =   100
+    interval   =   1000
 
     losses = {
         'overall': [],
