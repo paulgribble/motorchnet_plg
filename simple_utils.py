@@ -172,11 +172,12 @@ def test(cfg_file, weight_file, ff_coefficient=None):
 
     # Run episode
     data = run_episode(env, policy, 8, 0, 'test', ff_coefficient=ff_coefficient, detach=True)
+    overall_loss, losses_weighted = cal_loss(data)
     
-    return data
+    return data, losses_weighted
 
 
-def cal_loss(data, params):
+def cal_loss(data, params=None):
 
     loss = {'position': None,
             'muscle'  : None,
@@ -194,7 +195,10 @@ def cal_loss(data, params):
     loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)), dim=-1))
 
     loss_weights = [1, 1e-4, 0, 3e-5, 2e-2, 2e2]
-    loss_weights[5] = params['jw']
+#    loss_weights = [1,    1, 1,    1,    1,   1]
+    
+    if (not params==None):
+        loss_weights[5] = params['jw']
 
     losses_weighted = {
         'position'            : loss_weights[0] * loss['position'],
