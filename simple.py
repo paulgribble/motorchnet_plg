@@ -65,7 +65,7 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
             with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
                 pickle.dump(data, f)
             print_losses(losses_weighted=losses_weighted, model_name=model_name, batch=batch)
-            data, losses = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
+            data, _ = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
             plot_stuff(data, model_name + "/" + model_name)
 
         # Update loss values in the dictionary
@@ -81,7 +81,7 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
     with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
         pickle.dump(data, f)
     print_losses(losses_weighted=losses_weighted, model_name=model_name, batch=batch)
-    data, losses = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
+    data, _ = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
     plot_stuff(data, model_name + "/" + model_name)
 
 if __name__ == "__main__":
