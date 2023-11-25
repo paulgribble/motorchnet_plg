@@ -85,7 +85,7 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
     plot_stuff(data, model_name + "/" + model_name, batch=batch)
 
 if __name__ == "__main__":
-    jerk_weights = [0,0,100,100,200,200,400,400,600,600]
+    jerk_weights = [0,0,200,200,400,400,800,800]
     model_name = "jerk_"
     n_batch = int(sys.argv[1])
     batch_size = int(sys.argv[2])
