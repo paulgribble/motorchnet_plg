@@ -194,10 +194,10 @@ def cal_loss(data, params=None):
     loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
     loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)), dim=-1))
 
-#   loss_weights = [1   , 1e-4, 1e-6, 1e-5, 1e-8, 1e+2]
-    loss_weights = [1   , 1e-4, 4e-6, 3e-5, 2e-2, 2e+2]
-#   loss_weights = [1   , 1e-4,    0, 3e-5, 2e-2, 2e+2]
-    
+#   loss_weights = [1e+0, 1e-4, 1e-6, 1e-5, 1e-8, 1e+2]
+#   loss_weights = [1e+0, 1e-4,    0, 3e-5, 2e-2, 2e+2]
+    loss_weights = np.array([1e+0, 1e-4, 4e-6, 3e-5, 2e-2, 2e+2]) * 100
+
     if (not params==None):
         loss_weights[5] = params['jw']
 
@@ -353,7 +353,7 @@ def save_model(env, policy, losses, model_name, quiet=False):
         print(f"saved {log_file}")
         print(f"saved {cfg_file}")
 
-def plot_stuff(data, model_name, batch=None):
+def plot_stuff(data, model_name, batch=0):
     fig, ax = plot_simulations(xy=data['xy'], target_xy=data['tg'], figsize=(8,6))
     if (not batch==None):
         fig.suptitle(f"batch={batch}")
