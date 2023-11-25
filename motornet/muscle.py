@@ -559,7 +559,7 @@ class RigidTendonHillMuscle(Muscle):
     state_derivatives = th.zeros(shape, device=self.device)
     return self.integrate(self.dt, state_derivatives, muscle_state, geometry_state)
 
-  @th.compile()
+  @th.compile(mode='max-autotune')
   def _integrate(self, dt, state_derivative, muscle_state, geometry_state):
     activation = self.clip_activation(muscle_state[:, :1, :] + state_derivative * dt)
 

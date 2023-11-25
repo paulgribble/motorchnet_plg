@@ -37,7 +37,7 @@ class Policy(th.nn.Module):
         
         self.to(device)
 
-    @th.compile()
+    @th.compile(mode='max-autotune')
     def forward(self, x, h0):
 
         # TODO

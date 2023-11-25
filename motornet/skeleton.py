@@ -372,7 +372,7 @@ class TwoDofArm(Skeleton):
     self.coriolis_2 = self.m2 * self.L1 * self.L2g
     self.c_viscosity = viscosity  # put at zero but available if implemented later on
 
-  @th.compile()
+  @th.compile(mode='max-autotune')
   def _ode(self, inputs, joint_state, endpoint_load):
     # first two elements of state are joint position, last two elements are joint angular velocities
     pos0, pos1, vel0, vel1 = joint_state[:, 0], joint_state[:, 1], joint_state[:, 2], joint_state[:, 3]
@@ -413,7 +413,7 @@ class TwoDofArm(Skeleton):
     new_acc_3d = th.matmul(inertia_inv, rhs)
     return new_acc_3d[:, :, 0]  # somehow tf.squeeze doesn't work well in a Lambda wrap...
 
-  @th.compile()
+  @th.compile(mode='max-autotune')
   def _integrate(self, dt, state_derivative, joint_state):
     old_pos, old_vel = joint_state.chunk(2, dim=1)
     new_vel = old_vel + state_derivative * dt
@@ -425,7 +425,7 @@ class TwoDofArm(Skeleton):
     new_pos = self.clip_position(new_pos)
     return th.cat([new_pos, new_vel], dim=1)
 
-  @th.compile()
+  @th.compile(mode='max-autotune')
   def _joint2cartesian(self, joint_state):
     # compute cartesian state from joint state
     # reshape to have all time steps lined up in 1st dimension
@@ -444,7 +444,7 @@ class TwoDofArm(Skeleton):
     end_vel_y = (self.L1 * c1 + self.L2 * c12) * vel0 + self.L2 * c12 * vel1
     return th.stack([end_pos_x, end_pos_y, end_vel_x, end_vel_y], dim=1)
 
-  @th.compile()
+  @th.compile(mode='max-autotune')
   def _path2cartesian(self, path_coordinates, path_fixation_body, joint_state):
     n_points = path_fixation_body.numel()
     joint_angles, joint_vel = joint_state.chunk(2, dim=1)
