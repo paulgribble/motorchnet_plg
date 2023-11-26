@@ -195,7 +195,7 @@ def cal_loss(data, params=None):
 
 #   loss_weights = [1e+0, 1e-4, 1e-6, 1e-5, 1e-8, 1e+2]
 #   loss_weights = [1e+0, 1e-4,    0, 3e-5, 2e-2, 2e+2]
-    loss_weights = np.array([1e+0, 1e-4, 4e-5, 3e-5, 2e-2, 2e+2]) * 100
+    loss_weights = np.array([1e+0, 1e-4, 1e-4, 3e-5, 2e-2, 2e+2])
 
     if (not params==None):
         loss_weights[5] = params['jw']
