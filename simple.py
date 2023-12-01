@@ -2,8 +2,12 @@
 # coding: utf-8
 
 import os
-import time
 import sys
+
+motornet_home = os.path.expanduser("~") + "/github/MotorNet"
+sys.path.append(motornet_home)
+
+import time
 import json
 import numpy as np
 import torch as th
