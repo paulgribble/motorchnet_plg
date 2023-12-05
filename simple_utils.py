@@ -193,9 +193,7 @@ def cal_loss(data, params=None):
     loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
     loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)), dim=-1))
 
-#   loss_weights = [1e+0, 1e-4, 1e-6, 1e-5, 1e-8, 1e+2]
-#   loss_weights = [1e+0, 1e-4,    0, 3e-5, 2e-2, 2e+2]
-    loss_weights = np.array([1e+0, 1e-4, 1e-4, 3e-5, 2e-2, 2e+2])
+    loss_weights = np.array([1e+0, 1e-4, 1e-5, 3e-5, 2e-2, 2e+2])
 
     if (not params==None):
         loss_weights[5] = params['jw']
@@ -330,10 +328,6 @@ def save_model(env, policy, losses, model_name, quiet=False):
     weight_file = os.path.join(model_name, model_name + "_weights")
     log_file    = os.path.join(model_name, model_name + "_log.json")
     cfg_file    = os.path.join(model_name, model_name + "_cfg.json")
-
-    print(weight_file)
-    print(log_file)
-    print(cfg_file)
 
     # save model weights
     th.save(policy.state_dict(), weight_file)
