@@ -176,7 +176,7 @@ def test(cfg_file, weight_file, ff_coefficient=None):
     
     return data, losses_weighted
 
-def cal_loss(data, params=None):
+def cal_loss(data, params=None, dt=0.01):
 
     loss = {'position': None,
             'muscle'  : None,
@@ -190,10 +190,13 @@ def cal_loss(data, params=None):
     loss['muscle'] = th.mean(th.sum(data['all_force'], dim=-1))
     loss['muscle_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_force'], 1, dim=1)), dim=-1))
     loss['hidden'] = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
-    loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
+#    loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
+    loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 3, dim=1) / th.pow(th.tensor(dt), 3)), dim=-1))
     loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)), dim=-1))
 
-    loss_weights = np.array([1e+0, 1e-4, 1e-5, 3e-5, 2e-2, 2e+2])
+
+#    loss_weights = np.array([1e+0, 1e-4, 1e-5, 3e-5, 2e-2, 2e+2])
+    loss_weights = np.array([1e+0, 1e-4, 1e-5, 3e-5, 1e-10, 0.0])
 
     if (not params==None):
         loss_weights[5] = params['jw']

@@ -163,7 +163,7 @@ class CentreOutFF(mn.environment.Environment):
       self.endpoint_load = F
 
     else:
-      FF_matvel = th.tensor([[0, 1], [-1, 0]], dtype=th.float32)
+      FF_matvel = th.tensor([[0, 1], [-1, 0]], dtype=th.float32).to("cpu")
       # set endpoint load to zero before go cue
       self.endpoint_load = self.ff_coefficient * (vel@FF_matvel.T)
 
