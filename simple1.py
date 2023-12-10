@@ -26,9 +26,8 @@ print('motornet version: ' + mn.__version__)
 
 device = th.device("cpu")
 
-def go(model_name, jw, n_batch=20000, batch_size=256):
+def go(model_name, n_batch=20000, batch_size=256):
 
-    model_name = model_name + str(jw)
     if (not os.path.exists(model_name)):
         os.mkdir(model_name)
 
@@ -54,7 +53,7 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
                     unit="batch"):
 
         data = run_episode(env, policy, batch_size, catch_trial_perc=50, condition='train', ff_coefficient=0.0, detach=False)
-        loss, losses_weighted = cal_loss(data, {'jw':jw})
+        loss, losses_weighted = cal_loss(data)
 
         # backward pass & update weights
         optimizer.zero_grad() 
@@ -88,9 +87,9 @@ def go(model_name, jw, n_batch=20000, batch_size=256):
     plot_stuff(data, model_name + "/" + model_name, batch=batch)
 
 if __name__ == "__main__":
-    model_name = "simple"
+    model_name = "simple1"
     n_batch = int(sys.argv[1])
     batch_size = int(sys.argv[2])
-    go(model_name=model_name, jw=200, n_batch=n_batch, batch_size=batch_size)
+    go(model_name=model_name, n_batch=n_batch, batch_size=batch_size)
 
 

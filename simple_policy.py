@@ -31,17 +31,14 @@ class Policy(th.nn.Module):
             elif name == "fc.bias":
                 th.nn.init.constant_(param, -5.)
             else:
-                raise ValueError
-        if learn_h0:
-            self.h0 = th.nn.Parameter(th.zeros(self.n_layers, 1, hidden_dim), requires_grad=True)
-        
+                raise ValueError        
         self.to(device)
 
-    def forward(self, x, h0):
+    def forward(self, x, h):
 
         # TODO
         # Here I can add noise to h0 before applying
-        y, h = self.gru(x[:, None, :], h0)
+        y, h = self.gru(x[:, None, :], h)
         #hidden_noise         = 1e-3
         u = self.sigmoid(self.fc(y)).squeeze(dim=1)
         return u, h
