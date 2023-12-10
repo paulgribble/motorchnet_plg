@@ -197,11 +197,11 @@ def cal_loss(data, params=None, dt=0.01):
 
 #    loss_weights = np.array([1e+0, 1e-4, 1e-5, 3e-5, 2e-2, 2e+2])
     loss_weights = np.array([2e+0,   # position
-                             1e-4,   # muscle
+                             2e-4,   # muscle
                              1e-5,   # muscle_derivative
                              3e-5,   # hidden
-                             1e-11,  # hidden_derivative
-                             1e+0])  # jerk
+                             5e-13,  # hidden_derivative
+                             0e+2])  # jerk
 
     if (not params==None):
         loss_weights[5] = params['jw']
