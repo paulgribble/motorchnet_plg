@@ -200,8 +200,8 @@ def cal_loss(data, params=None, dt=0.01):
                              1e-4,   # muscle
                              1e-5,   # muscle_derivative
                              3e-5,   # hidden
-                             1e-12,  # hidden_derivative
-                             0e+2])  # jerk
+                             1e-11,  # hidden_derivative
+                             1e+0])  # jerk
 
     if (not params==None):
         loss_weights[5] = params['jw']
