@@ -196,11 +196,11 @@ def cal_loss(data, params=None, dt=0.01):
 
 
 #    loss_weights = np.array([1e+0, 1e-4, 1e-5, 3e-5, 2e-2, 2e+2])
-    loss_weights = np.array([1e+0,   # position
+    loss_weights = np.array([2e+0,   # position
                              1e-4,   # muscle
                              1e-5,   # muscle_derivative
                              3e-5,   # hidden
-                             1e-13,  # hidden_derivative
+                             1e-12,  # hidden_derivative
                              0e+2])  # jerk
 
     if (not params==None):
@@ -359,17 +359,21 @@ def plot_stuff(data, model_name, batch=0):
     if (not batch==None):
         fig.suptitle(f"batch={batch}")
     fig.tight_layout()
-    fig.savefig(model_name+"_"+"handpaths_"+str(batch)+"-"+".png")
+    fig.savefig(model_name+"_"+"handpaths_"+str(batch)+".png")
+    fig.savefig(model_name+"_"+"handpaths_current.png")
     plt.close(fig)
     fig, ax = plot_activation(data['all_hidden'], data['all_muscle'])
     if (not batch==None):
         fig.suptitle(f"batch={batch}")
     fig.tight_layout()
-    fig.savefig(model_name+"_"+"muscles_"+str(batch)+"-"+".png")
+    fig.savefig(model_name+"_"+"muscles_"+str(batch)+".png")
+    fig.savefig(model_name+"_"+"muscles_current.png")
     plt.close(fig)
     fig, ax = plot_kinematics(all_xy=data["xy"], all_tg=data["tg"], all_vel=data["vel"])
     if (not batch==None):
         fig.suptitle(f"batch={batch}")
     fig.tight_layout()
-    fig.savefig(model_name+"_"+"kinematics_"+str(batch)+"-"+".png")
+    fig.savefig(model_name+"_"+"kinematics_"+str(batch)+".png")
+    fig.savefig(model_name+"_"+"kinematics_current.png")
     plt.close(fig)
+

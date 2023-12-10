@@ -26,6 +26,8 @@ print('motornet version: ' + mn.__version__)
 
 device = th.device("cpu")
 
+th._dynamo.config.cache_size_limit = 16 * 1024 ** 3  # 16 GB
+
 def go(model_name, n_batch=20000, batch_size=256):
 
     if (not os.path.exists(model_name)):
@@ -37,7 +39,7 @@ def go(model_name, n_batch=20000, batch_size=256):
     policy = Policy(env.observation_space.shape[0], 128, env.n_muscles, device=device)
     optimizer = th.optim.Adam(policy.parameters(), lr=10**-3)
 
-    interval   =   1000
+    interval   =   100
 
     losses = {
         'overall': [],
