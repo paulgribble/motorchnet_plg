@@ -214,7 +214,7 @@ def cal_loss(data, go_cue_time, params=None, dt=0.01, condition='train'):
                              1e-1,   # muscle
                              1e-8,   # muscle_derivative
                              1e-4,   # hidden
-                             1e-9,  # hidden_derivative
+                             1e-8,   # hidden_derivative
                              1e-9])  # jerk
 
     if (not params==None):
