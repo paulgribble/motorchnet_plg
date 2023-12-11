@@ -37,9 +37,9 @@ def go(model_name, n_batch=20000, batch_size=256):
     env = CentreOutFF(effector=effector, max_ep_duration=1.)
 
     policy = Policy(env.observation_space.shape[0], 128, env.n_muscles, device=device)
-    optimizer = th.optim.Adam(policy.parameters(), lr=10**-3)
+    optimizer = th.optim.Adam(policy.parameters(), lr=1e-3)
 
-    interval   =   500
+    interval   =   250
 
     losses = {
         'overall': [],

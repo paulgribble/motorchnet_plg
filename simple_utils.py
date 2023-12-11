@@ -188,20 +188,17 @@ def cal_loss(data, params=None, dt=0.01):
 
     loss['position'] = th.mean(th.sum(th.abs(data['xy']-data['tg']), dim=-1))
     loss['muscle'] = th.mean(th.sum(data['all_force'], dim=-1))
-    loss['muscle_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_force'], 1, dim=1)), dim=-1))
+    loss['muscle_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_force'], 1, dim=1)/th.tensor(dt)), dim=-1))
     loss['hidden'] = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
-#    loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 1, dim=1)), dim=-1))
     loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 3, dim=1) / th.pow(th.tensor(dt), 3)), dim=-1))
-    loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)), dim=-1))
+    loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)/th.pow(th.tensor(dt),3)), dim=-1))
 
-
-#    loss_weights = np.array([1e+0, 1e-4, 1e-5, 3e-5, 2e-2, 2e+2])
     loss_weights = np.array([1e+0,   # position
-                             5e-4,   # muscle
-                             1e-5,   # muscle_derivative
-                             3e-5,   # hidden
-                             2e-13,  # hidden_derivative
-                             1e+1])  # jerk
+                             1e-4,   # muscle
+                             1e-8,   # muscle_derivative
+                             3e-4,   # hidden
+                             3e-13,  # hidden_derivative
+                             1e-10])  # jerk
 
     if (not params==None):
         loss_weights[5] = params['jw']
@@ -229,7 +226,7 @@ def print_losses(losses_weighted, model_name, batch):
     fstring = f"batch: {batch}, overall_loss: {overall_loss:.5f}, "
     for l in losses_weighted.keys():
         fstring = fstring + f"{l}: {losses_weighted[l]:.5f}, "
-    with open(model_name + "/" + model_name + "_losses.txt", "a") as f:
+    with open(model_name + "/" + model_name + "___losses.txt", "a") as f:
         print(fstring[:-2], file=f)
 
 
