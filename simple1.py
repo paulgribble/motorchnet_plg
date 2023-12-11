@@ -28,7 +28,7 @@ device = th.device("cpu")
 
 th._dynamo.config.cache_size_limit = 16 * 1024 ** 3  # 16 GB
 
-def go(model_name, n_batch=20000, batch_size=256, interval=250):
+def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128):
 
     if (not os.path.exists(model_name)):
         os.mkdir(model_name)
@@ -36,7 +36,7 @@ def go(model_name, n_batch=20000, batch_size=256, interval=250):
     effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.RigidTendonHillMuscle())
     env = CentreOutFF(effector=effector, max_ep_duration=1.)
 
-    policy = Policy(env.observation_space.shape[0], 128, env.n_muscles, device=device)
+    policy = Policy(env.observation_space.shape[0], n_hidden, env.n_muscles, device=device)
     optimizer = th.optim.Adam(policy.parameters(), lr=1e-3)
 
     losses = {
