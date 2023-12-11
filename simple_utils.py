@@ -172,11 +172,11 @@ def test(cfg_file, weight_file, ff_coefficient=None):
 
     # Run episode
     data, go_cue_time = run_episode(env, policy, 8, 0, 'test', ff_coefficient=ff_coefficient, detach=True)
-    overall_loss, losses_weighted = cal_loss(data, go_cue_time, condition='test')
+    overall_loss, losses_weighted = cal_loss(data, go_cue_time)
     
     return data, losses_weighted
 
-def cal_loss(data, go_cue_time, params=None, dt=0.01, condition='train'):
+def cal_loss(data, go_cue_time, params=None, dt=0.01):
 
     loss = {'position': None,
             'muscle'  : None,
@@ -186,18 +186,11 @@ def cal_loss(data, go_cue_time, params=None, dt=0.01, condition='train'):
             'jerk': None
             }
 
-    min_mov_time  = 0.300
-    max_mov_time  = 0.600
-    test_mov_time = 0.500
-
-    if (condition=='test'):
-        desired_movement_dur = np.ones(data['xy'].shape[0]) * test_mov_time
-    else:
-        desired_movement_dur = np.random.rand(data['xy'].shape[0])*(max_mov_time-min_mov_time) + min_mov_time
+    desired_movement_dur = np.ones(data['xy'].shape[0]) * 0.500 # 500 ms move time
 
     mov_steps = np.array(desired_movement_dur * 100, dtype="int") # convert to time steps
     mov_start = np.array(go_cue_time*100, dtype="int")     # convert to int
-    mov_end = mov_start + mov_steps     # convert to int
+    mov_end = mov_start + mov_steps
     mov_end[mov_end>data['xy'].shape[1]] = data['xy'].shape[1]
     for idx in range(data['xy'].shape[0]):
         data['tg'][idx, mov_start[idx]:mov_end[idx], :] = data['xy'][idx, mov_start[idx]:mov_end[idx], :]
@@ -215,7 +208,7 @@ def cal_loss(data, go_cue_time, params=None, dt=0.01, condition='train'):
                              1e-8,   # muscle_derivative
                              1e-4,   # hidden
                              1e-8,   # hidden_derivative
-                             1e-9])  # jerk
+                             1e-8])  # jerk
 
     if (not params==None):
         loss_weights[5] = params['jw']
