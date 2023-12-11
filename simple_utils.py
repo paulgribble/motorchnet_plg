@@ -127,7 +127,7 @@ def run_episode(env, policy, batch_size=1, catch_trial_perc=50, condition='train
       for key in data:
           data[key] = th.detach(data[key])
 
-  return data
+  return data, info['go_cue_time']
 
 
 def test(cfg_file, weight_file, ff_coefficient=None):
@@ -171,12 +171,12 @@ def test(cfg_file, weight_file, ff_coefficient=None):
     policy.load_state_dict(w)
 
     # Run episode
-    data = run_episode(env, policy, 8, 0, 'test', ff_coefficient=ff_coefficient, detach=True)
-    overall_loss, losses_weighted = cal_loss(data)
+    data, go_cue_time = run_episode(env, policy, 8, 0, 'test', ff_coefficient=ff_coefficient, detach=True)
+    overall_loss, losses_weighted = cal_loss(data, go_cue_time, condition='test')
     
     return data, losses_weighted
 
-def cal_loss(data, params=None, dt=0.01):
+def cal_loss(data, go_cue_time, params=None, dt=0.01, condition='train'):
 
     loss = {'position': None,
             'muscle'  : None,
@@ -186,15 +186,32 @@ def cal_loss(data, params=None, dt=0.01):
             'jerk': None
             }
 
+    min_mov_time  = 0.300
+    max_mov_time  = 0.600
+    test_mov_time = 0.500
+
+    if (condition=='test'):
+        desired_movement_dur = np.ones(data['xy'].shape[0]) * test_mov_time
+    else:
+        desired_movement_dur = np.random.rand(data['xy'].shape[0])*(max_mov_time-min_mov_time) + min_mov_time
+
+    mov_steps = np.array(desired_movement_dur * 100, dtype="int") # convert to time steps
+    mov_start = np.array(go_cue_time*100, dtype="int")     # convert to int
+    mov_end = mov_start + mov_steps     # convert to int
+    mov_end[mov_end>data['xy'].shape[1]] = data['xy'].shape[1]
+    for idx in range(data['xy'].shape[0]):
+        data['tg'][idx, mov_start[idx]:mov_end[idx], :] = data['xy'][idx, mov_start[idx]:mov_end[idx], :]
     loss['position'] = th.mean(th.sum(th.abs(data['xy']-data['tg']), dim=-1))
+
+#    loss['position'] = th.mean(th.sum(th.abs(data['xy']-data['tg']), dim=-1))
     loss['muscle'] = th.mean(th.sum(data['all_force'], dim=-1))
     loss['muscle_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_force'], 1, dim=1)/th.tensor(dt)), dim=-1))
     loss['hidden'] = th.mean(th.sum(th.square(data['all_hidden']), dim=-1))
     loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 3, dim=1) / th.pow(th.tensor(dt), 3)), dim=-1))
     loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)/th.pow(th.tensor(dt),3)), dim=-1))
 
-    loss_weights = np.array([1e+0,   # position
-                             1e-4,   # muscle
+    loss_weights = np.array([1e+3,   # position
+                             1e-1,   # muscle
                              1e-8,   # muscle_derivative
                              3e-4,   # hidden
                              3e-13,  # hidden_derivative

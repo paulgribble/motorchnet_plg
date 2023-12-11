@@ -4,8 +4,8 @@
 import os
 import sys
 
-motornet_home = os.path.expanduser("~") + "/github/MotorNet"
-sys.path.append(motornet_home)
+#motornet_home = os.path.expanduser("~") + "/github/MotorNet"
+#sys.path.append(motornet_home)
 
 import time
 import json
@@ -28,7 +28,7 @@ device = th.device("cpu")
 
 th._dynamo.config.cache_size_limit = 16 * 1024 ** 3  # 16 GB
 
-def go(model_name, n_batch=20000, batch_size=256):
+def go(model_name, n_batch=20000, batch_size=256, interval=250):
 
     if (not os.path.exists(model_name)):
         os.mkdir(model_name)
@@ -38,8 +38,6 @@ def go(model_name, n_batch=20000, batch_size=256):
 
     policy = Policy(env.observation_space.shape[0], 128, env.n_muscles, device=device)
     optimizer = th.optim.Adam(policy.parameters(), lr=1e-3)
-
-    interval   =   250
 
     losses = {
         'overall': [],
@@ -54,8 +52,8 @@ def go(model_name, n_batch=20000, batch_size=256):
                     desc=f"Training {n_batch} batches of {batch_size}",
                     unit="batch"):
 
-        data = run_episode(env, policy, batch_size, catch_trial_perc=50, condition='train', ff_coefficient=0.0, detach=False)
-        loss, losses_weighted = cal_loss(data)
+        data, go_cue_time = run_episode(env, policy, batch_size, catch_trial_perc=50, condition='train', ff_coefficient=0.0, detach=False)
+        loss, losses_weighted = cal_loss(data, go_cue_time)
 
         # backward pass & update weights
         optimizer.zero_grad() 
@@ -92,6 +90,7 @@ if __name__ == "__main__":
     model_name = "simple1"
     n_batch = int(sys.argv[1])
     batch_size = int(sys.argv[2])
-    go(model_name=model_name, n_batch=n_batch, batch_size=batch_size)
+    interval = int(sys.argv[3])
+    go(model_name=model_name, n_batch=n_batch, batch_size=batch_size, interval = interval)
 
 

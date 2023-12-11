@@ -119,6 +119,7 @@ class CentreOutFF(mn.environment.Environment):
       "action": action,
       "noisy action": action,  # no noise here so it is the same
       "goal": self.goal,
+      "go_cue_time": self.go_cue_time,
       }
     return obs, info
 
@@ -186,6 +187,7 @@ class CentreOutFF(mn.environment.Environment):
       "action": action,
       "noisy action": noisy_action,
       "goal": self.goal * self.go_cue + self.init * (1-self.go_cue), # update the target depending on the go cue
+      "go_cue_time": self.go_cue_time,
       }
     return obs, reward, terminated, truncated, info
 
