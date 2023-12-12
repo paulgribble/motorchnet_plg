@@ -91,6 +91,7 @@ if __name__ == "__main__":
     n_batch = int(sys.argv[2])
     batch_size = int(sys.argv[3])
     interval = int(sys.argv[4])
-    go(model_name=model_name, n_batch=n_batch, batch_size=batch_size, interval = interval)
+    n_hidden = int(sys.argv[5])
+    go(model_name=model_name, n_batch=n_batch, batch_size=batch_size, interval = interval, n_hidden=n_hidden)
 
 
