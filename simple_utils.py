@@ -186,7 +186,7 @@ def cal_loss(data, go_cue_time, params=None, dt=0.01):
             'jerk': None
             }
 
-    desired_movement_dur = np.ones(data['xy'].shape[0]) * 0.500 # 500 ms move time
+    desired_movement_dur = np.ones(data['xy'].shape[0]) * 0.350 # 350 ms move time
 
     mov_steps = np.array(desired_movement_dur * 100, dtype="int") # convert to time steps
     mov_start = np.array(go_cue_time*100, dtype="int")     # convert to int
