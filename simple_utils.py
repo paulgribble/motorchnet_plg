@@ -236,9 +236,9 @@ def print_losses(losses_weighted, model_name, batch):
     overall_loss = 0.0
     for l in losses_weighted.keys():
         overall_loss += losses_weighted[l]
-    fstring = f"batch: {batch}, overall_loss: {overall_loss:.5f}, "
+    fstring = f"batch: {batch:5d}, overall_loss: {overall_loss:9.5f}, "
     for l in losses_weighted.keys():
-        fstring = fstring + f"{l}: {losses_weighted[l]:.5f}, "
+        fstring = fstring + f"{l}: {losses_weighted[l]:9.5f}, "
     with open(model_name + "/" + model_name + "___losses.txt", "a") as f:
         print(fstring[:-2], file=f)
 
