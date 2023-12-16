@@ -86,12 +86,19 @@ def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128):
     data, _ = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
     plot_stuff(data, model_name + "/" + model_name, batch=batch)
 
+
 if __name__ == "__main__":
+
     model_name = sys.argv[1]
     n_batch = int(sys.argv[2])
     batch_size = int(sys.argv[3])
     interval = int(sys.argv[4])
     n_hidden = int(sys.argv[5])
-    go(model_name=model_name, n_batch=n_batch, batch_size=batch_size, interval = interval, n_hidden=n_hidden)
+
+    go(model_name = model_name, 
+       n_batch    = n_batch, 
+       batch_size = batch_size, 
+       interval   = interval, 
+       n_hidden   = n_hidden)
 
 
