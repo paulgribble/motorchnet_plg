@@ -189,8 +189,11 @@ def cal_loss(data, go_cue_time, params=None, dt=0.01):
             'jerk': None
             }
 
-    desired_movement_dur = np.ones(data['xy'].shape[0]) * 0.350 # 350 ms move time
-
+    # this code chunk makes tgt position between the go signal and the desired
+    # movement end time equal to the model position, thereby effectively zeroing
+    # out the position error during movement. The loss only cares that the model
+    # reaches the tgt position by the desired movement time
+    desired_movement_dur = np.ones(data['xy'].shape[0]) * 0.400 # 400 ms move time
     mov_steps = np.array(desired_movement_dur * 100, dtype="int") # convert to time steps
     mov_start = np.array(go_cue_time*100, dtype="int")     # convert to int
     mov_end = mov_start + mov_steps
@@ -206,7 +209,7 @@ def cal_loss(data, go_cue_time, params=None, dt=0.01):
     loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 3, dim=1) / th.pow(th.tensor(dt), 3)), dim=-1))
     loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)/th.pow(th.tensor(dt),3)), dim=-1))
 
-    loss_weights = np.array([1e+3,   # position
+    loss_weights = np.array([1e+2,   # position
                              5e-2,   # muscle
                              1e-8,   # muscle_derivative
                              1e-4,   # hidden

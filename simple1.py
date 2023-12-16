@@ -30,9 +30,6 @@ th._dynamo.config.cache_size_limit = 16 * 1024 ** 3  # 16 GB
 
 def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128):
 
-    if (not os.path.exists(model_name)):
-        os.mkdir(model_name)
-
     effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.RigidTendonHillMuscle())
     env = CentreOutFF(effector=effector, max_ep_duration=2.)
 
@@ -94,6 +91,17 @@ if __name__ == "__main__":
     batch_size = int(sys.argv[3])
     interval = int(sys.argv[4])
     n_hidden = int(sys.argv[5])
+
+    if (not os.path.exists(model_name)):
+        os.mkdir(model_name)
+
+    with open(model_name + "/" + model_name + "___launchcmd.txt", "w") as f:
+        print(f"model_name : {model_name}\n"
+              f"n_batch    :{n_batch:6d}\n"
+              f"batch_size :{batch_size:6d}\n"
+              f"interval   :{interval:6d}\n"
+              f"n_hidden   :{n_hidden:6d}\n"
+              , file=f)
 
     go(model_name = model_name, 
        n_batch    = n_batch, 
