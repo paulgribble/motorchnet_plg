@@ -26,7 +26,7 @@ print('motornet version: ' + mn.__version__)
 
 device = th.device("cpu")
 
-th._dynamo.config.cache_size_limit = 16 * 1024 ** 3  # 16 GB
+# th._dynamo.config.cache_size_limit = 16 * 1024 ** 3  # 16 GB
 
 def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128):
 
