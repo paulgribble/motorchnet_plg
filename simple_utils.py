@@ -34,6 +34,8 @@ def plot_simulations(xy, target_xy, figsize=(5,3)):
     target_x = target_xy[:, -1, 0]
     target_y = target_xy[:, -1, 1]
 
+    nt = np.shape
+
     fig, ax = plt.subplots(figsize=figsize)
     ax.set_ylim([0.3, 0.65])
     ax.set_xlim([-0.3, 0.])
@@ -48,9 +50,10 @@ def plot_simulations(xy, target_xy, figsize=(5,3)):
 
 def plot_activation(all_hidden, all_muscles):
     n = np.shape(all_muscles)[0]
+    nt = np.shape(all_muscles)[1]
     fig, ax = plt.subplots(nrows=n, ncols=2, figsize=(6,10))
 
-    x = np.linspace(0, 1, 100)
+    x = np.linspace(0, nt, nt)
 
     for i in range(n):
         ax[i,0].plot(x,np.array(all_muscles[i,:,:]))
@@ -58,8 +61,8 @@ def plot_activation(all_hidden, all_muscles):
         
         ax[i,0].set_ylabel('muscle act (au)')
         ax[i,1].set_ylabel('hidden act (au)')
-        ax[i,0].set_xlabel('time (s)')
-        ax[i,1].set_xlabel('time (s)')
+        ax[i,0].set_xlabel('time steps')
+        ax[i,1].set_xlabel('time steps')
     fig.tight_layout()
     return fig, ax
 
@@ -67,7 +70,7 @@ def plot_kinematics(all_xy, all_tg, all_vel):
     n = np.shape(all_xy)[0]
     fig, ax = plt.subplots(nrows=n, ncols=2, figsize=(6,10))
 
-    x = np.linspace(0, 1, all_xy.size(dim=1))
+    x = np.linspace(0, all_xy.size(dim=1), all_xy.size(dim=1))
     tgvel = np.diff(np.array(all_tg), axis=1)*100
 
     for i in range(n):
@@ -78,8 +81,8 @@ def plot_kinematics(all_xy, all_tg, all_vel):
         
         ax[i,0].set_ylabel('xy,tg')
         ax[i,1].set_ylabel('vel')
-        ax[i,0].set_xlabel('time (s)')
-        ax[i,1].set_xlabel('time (s)')
+        ax[i,0].set_xlabel('time steps')
+        ax[i,1].set_xlabel('time steps')
     fig.tight_layout()
     return fig, ax
 

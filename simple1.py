@@ -34,7 +34,7 @@ def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128):
         os.mkdir(model_name)
 
     effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.RigidTendonHillMuscle())
-    env = CentreOutFF(effector=effector, max_ep_duration=1.)
+    env = CentreOutFF(effector=effector, max_ep_duration=2.)
 
     policy = Policy(env.observation_space.shape[0], n_hidden, env.n_muscles, device=device)
     optimizer = th.optim.Adam(policy.parameters(), lr=1e-3)
