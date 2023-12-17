@@ -209,7 +209,7 @@ def cal_loss(data, go_cue_time, params=None, dt=0.01):
     loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 3, dim=1) / th.pow(th.tensor(dt), 3)), dim=-1))
     loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)/th.pow(th.tensor(dt),3)), dim=-1))
 
-    loss_weights = np.array([1e+2,   # position
+    loss_weights = np.array([1e+3,   # position
                              5e-2,   # muscle
                              1e-8,   # muscle_derivative
                              1e-4,   # hidden
