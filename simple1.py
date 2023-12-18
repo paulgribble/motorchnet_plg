@@ -93,6 +93,7 @@ if __name__ == "__main__":
         os.mkdir(model_name)
 
     with open(model_name + "/" + model_name + "___launchcmd.txt", "w") as f:
+        print(f"{sys.argv}", file=f)
         print(f"model_name : {model_name}\n"
               f"n_batch    :{n_batch:6d}\n"
               f"batch_size :{batch_size:6d}\n"
