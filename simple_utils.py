@@ -133,7 +133,7 @@ def run_episode(env, policy, batch_size=1, catch_trial_perc=50, condition='train
   return data, info['go_cue_time']
 
 
-def test(cfg_file, weight_file, ff_coefficient=None):
+def test(cfg_file, weight_file, ff_coefficient=None, loss_weights=None):
 
     device = th.device("cpu")
 
@@ -175,11 +175,11 @@ def test(cfg_file, weight_file, ff_coefficient=None):
 
     # Run episode
     data, go_cue_time = run_episode(env, policy, 8, 0, 'test', ff_coefficient=ff_coefficient, detach=True)
-    overall_loss, losses_weighted = cal_loss(data, go_cue_time)
+    overall_loss, losses_weighted = cal_loss(data=data, go_cue_time=go_cue_time, dt=env.dt, loss_weights=loss_weights)
     
     return data, losses_weighted
 
-def cal_loss(data, go_cue_time, params=None, dt=0.01):
+def cal_loss(data, go_cue_time, dt=0.01, loss_weights=None):
 
     loss = {'position': None,
             'muscle'  : None,
@@ -209,15 +209,13 @@ def cal_loss(data, go_cue_time, params=None, dt=0.01):
     loss['hidden_derivative'] = th.mean(th.sum(th.square(th.diff(data['all_hidden'], 3, dim=1) / th.pow(th.tensor(dt), 3)), dim=-1))
     loss['jerk'] = th.mean(th.sum(th.square(th.diff(data['vel'],n=2,dim=1)/th.pow(th.tensor(dt),3)), dim=-1))
 
-    loss_weights = np.array([1e+3,   # position
-                             5e-2,   # muscle
-                             1e-8,   # muscle_derivative
-                             1e-4,   # hidden
-                             1e-8,   # hidden_derivative
-                             5e-7])  # jerk # was 1e-7
-
-    if (not params==None):
-        loss_weights[5] = params['jw']
+    if (loss_weights is None):
+        loss_weights = np.array([1e+3,  # position
+                                5e-2,   # muscle
+                                1e-8,   # muscle_derivative
+                                1e-4,   # hidden
+                                1e-8,   # hidden_derivative
+                                1e-7])  # jerk on hand path
 
     losses_weighted = {
         'position'            : loss_weights[0] * loss['position'],

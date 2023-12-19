@@ -25,7 +25,7 @@ device = th.device("cpu")
 
 th._dynamo.config.cache_size_limit = 16 * 1024 ** 3  # 16 GB
 
-def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128):
+def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128, loss_weights=None):
 
     effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.RigidTendonHillMuscle())
     env = CentreOutFF(effector=effector, max_ep_duration=2.)
@@ -47,7 +47,7 @@ def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128):
                     unit="batch"):
 
         data, go_cue_time = run_episode(env, policy, batch_size, catch_trial_perc=50, condition='train', ff_coefficient=0.0, detach=False)
-        loss, losses_weighted = cal_loss(data, go_cue_time)
+        loss, losses_weighted = cal_loss(data=data, go_cue_time=go_cue_time, dt=env.dt, loss_weights=loss_weights)
 
         # backward pass & update weights
         optimizer.zero_grad() 
@@ -61,7 +61,9 @@ def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128):
             with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
                 pickle.dump(data, f)
             print_losses(losses_weighted=losses_weighted, model_name=model_name, batch=batch)
-            data, _ = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
+            data, _ = test(cfg_file  = model_name + "/" + model_name + "_cfg.json",
+                        weight_file  = model_name + "/" + model_name + "_weights",
+                        loss_weights = loss_weights)
             plot_stuff(data, model_name + "/" + model_name, batch=batch)
 
         # Update loss values in the dictionary
@@ -77,7 +79,9 @@ def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128):
     with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
         pickle.dump(data, f)
     print_losses(losses_weighted=losses_weighted, model_name=model_name, batch=batch)
-    data, _ = test(model_name + "/" + model_name + "_cfg.json", model_name + "/" + model_name + "_weights")
+    data, _ = test(cfg_file     = model_name + "/" + model_name + "_cfg.json",
+                   weight_file  = model_name + "/" + model_name + "_weights",
+                   loss_weights = loss_weights)
     plot_stuff(data, model_name + "/" + model_name, batch=batch)
 
 
@@ -101,10 +105,18 @@ if __name__ == "__main__":
               f"n_hidden   :{n_hidden:6d}\n"
               , file=f)
 
-    go(model_name = model_name, 
-       n_batch    = n_batch, 
-       batch_size = batch_size, 
-       interval   = interval, 
-       n_hidden   = n_hidden)
+    loss_weights = np.array([1e+3,   # position
+                             5e-2,   # muscle
+                             1e-8,   # muscle_derivative
+                             1e-4,   # hidden
+                             1e-8,   # hidden_derivative
+                             1e-7])  # jerk on hand path
+
+    go(model_name   = model_name, 
+       n_batch      = n_batch, 
+       batch_size   = batch_size, 
+       interval     = interval, 
+       n_hidden     = n_hidden,
+       loss_weights = loss_weights)
 
 
