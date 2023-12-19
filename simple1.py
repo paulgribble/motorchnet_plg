@@ -15,6 +15,7 @@ from simple_task import CentreOutFF
 from simple_utils import *
 from tqdm import tqdm
 import pickle
+from joblib import Parallel, delayed
 
 print('All packages imported.')
 print('pytorch version: ' + th.__version__)
@@ -26,6 +27,19 @@ device = th.device("cpu")
 th._dynamo.config.cache_size_limit = 16 * 1024 ** 3  # 16 GB
 
 def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128, loss_weights=None):
+
+    if (not os.path.exists(model_name)):
+        os.mkdir(model_name)
+
+    with open(model_name + "/" + model_name + "___launchcmd.txt", "w") as f:
+        print(f"{sys.argv}", file=f)
+        print(f"model_name : {model_name}\n"
+              f"n_batch    :{n_batch:6d}\n"
+              f"batch_size :{batch_size:6d}\n"
+              f"interval   :{interval:6d}\n"
+              f"n_hidden   :{n_hidden:6d}\n"
+              f"loss_weights :{loss_weights}\n"
+              , file=f)
 
     effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.RigidTendonHillMuscle())
     env = CentreOutFF(effector=effector, max_ep_duration=2.)
@@ -93,18 +107,6 @@ if __name__ == "__main__":
     interval = int(sys.argv[4])
     n_hidden = int(sys.argv[5])
 
-    if (not os.path.exists(model_name)):
-        os.mkdir(model_name)
-
-    with open(model_name + "/" + model_name + "___launchcmd.txt", "w") as f:
-        print(f"{sys.argv}", file=f)
-        print(f"model_name : {model_name}\n"
-              f"n_batch    :{n_batch:6d}\n"
-              f"batch_size :{batch_size:6d}\n"
-              f"interval   :{interval:6d}\n"
-              f"n_hidden   :{n_hidden:6d}\n"
-              , file=f)
-
     loss_weights = np.array([1e+3,   # position
                              5e-2,   # muscle
                              1e-8,   # muscle_derivative
@@ -112,11 +114,23 @@ if __name__ == "__main__":
                              1e-8,   # hidden_derivative
                              1e-7])  # jerk on hand path
 
-    go(model_name   = model_name, 
-       n_batch      = n_batch, 
-       batch_size   = batch_size, 
-       interval     = interval, 
-       n_hidden     = n_hidden,
-       loss_weights = loss_weights)
+    # go(model_name   = model_name, 
+    #    n_batch      = n_batch, 
+    #    batch_size   = batch_size, 
+    #    interval     = interval, 
+    #    n_hidden     = n_hidden,
+    #    loss_weights = loss_weights)
 
+    jerk_weights = [1e-8,1e-8,1e-8,1e-7,1e-7,1e-7,1e-6,1e-6,1e-6]
+    lw = [loss_weights.copy() for _ in range(len(jerk_weights))]
+    for idx,jw in enumerate(jerk_weights):
+        lw[idx][5] = jw
+
+    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name = model_name+str(idx)+"_", 
+                                                               n_batch = n_batch, 
+                                                            batch_size = batch_size,
+                                                              interval = interval,
+                                                              n_hidden = n_hidden,
+                                                          loss_weights = lw[idx]
+                                                          ) for idx,_ in enumerate(jerk_weights))
 
