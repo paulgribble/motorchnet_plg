@@ -121,12 +121,12 @@ if __name__ == "__main__":
     #    n_hidden     = n_hidden,
     #    loss_weights = loss_weights)
 
-    jerk_weights = [1e-9,1e-9,1e-9,5e-9,5e-9,5e-9,1e-8,1e-8,1e-8]
+    jerk_weights = [1e-10,1e-10,1e-10,5e-10,5e-10,5e-10,1e-9,1e-9,1e-9]
     lw = [loss_weights.copy() for _ in range(len(jerk_weights))]
     for idx,jw in enumerate(jerk_weights):
         lw[idx][5] = jw
 
-    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name = model_name+str(idx)+"_", 
+    result = Parallel(n_jobs=len(jerk_weights))(delayed(go)(model_name = model_name+str(idx), 
                                                                n_batch = n_batch, 
                                                             batch_size = batch_size,
                                                               interval = interval,
