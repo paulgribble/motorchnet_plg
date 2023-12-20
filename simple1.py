@@ -110,7 +110,7 @@ if __name__ == "__main__":
     loss_weights = np.array([1e+3,   # position
                              5e-2,   # muscle
                              1e-8,   # muscle_derivative
-                             1e-4,   # hidden
+                             1e-3,   # hidden # was 1e-4
                              1e-8,   # hidden_derivative
                              1e-7])  # jerk on hand path
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     #    n_hidden     = n_hidden,
     #    loss_weights = loss_weights)
 
-    jerk_weights = [1e-8,1e-8,1e-8,1e-7,1e-7,1e-7,1e-6,1e-6,1e-6]
+    jerk_weights = [1e-9,1e-9,1e-9,5e-9,5e-9,5e-9,1e-8,1e-8,1e-8]
     lw = [loss_weights.copy() for _ in range(len(jerk_weights))]
     for idx,jw in enumerate(jerk_weights):
         lw[idx][5] = jw
