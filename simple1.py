@@ -42,7 +42,7 @@ def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128, lo
               , file=f)
 
     effector = mn.effector.RigidTendonArm26(muscle=mn.muscle.RigidTendonHillMuscle())
-    env = CentreOutFF(effector=effector, max_ep_duration=2.)
+    env = CentreOutFF(effector=effector, max_ep_duration=1.5)
 
     policy = Policy(env.observation_space.shape[0], n_hidden, env.n_muscles, device=device)
     optimizer = th.optim.Adam(policy.parameters(), lr=1e-3)
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     #    n_hidden     = n_hidden,
     #    loss_weights = loss_weights)
 
-    jerk_weights = [1e-10,1e-10,1e-10,5e-10,5e-10,5e-10,1e-9,1e-9,1e-9]
+    jerk_weights = [0,0,0,1e-10,1e-10,1e-10,5e-10,5e-10,5e-10,1e-9,1e-9,1e-9]
     lw = [loss_weights.copy() for _ in range(len(jerk_weights))]
     for idx,jw in enumerate(jerk_weights):
         lw[idx][5] = jw
