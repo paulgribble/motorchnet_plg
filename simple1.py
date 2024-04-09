@@ -60,8 +60,8 @@ def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128, lo
                     desc=f"Training {n_batch} batches of {batch_size}",
                     unit="batch"):
 
-        data, go_cue_time = run_episode(env, policy, batch_size, catch_trial_perc=50, condition='train', ff_coefficient=0.0, detach=False)
-        loss, losses_weighted = cal_loss(data=data, go_cue_time=go_cue_time, dt=env.dt, loss_weights=loss_weights)
+        data = run_episode(env, policy, batch_size, catch_trial_perc=50, condition='train', ff_coefficient=0.0, detach=False)
+        loss, losses_weighted = cal_loss(data=data, loss_weights=loss_weights)
 
         # backward pass & update weights
         optimizer.zero_grad() 
@@ -107,12 +107,12 @@ if __name__ == "__main__":
     interval = int(sys.argv[4])
     n_hidden = int(sys.argv[5])
 
-    loss_weights = np.array([1e+3,   # position
-                             5e-2,   # muscle
-                             1e-8,   # muscle_derivative
-                             1e-3,   # hidden # was 1e-4
-                             1e-8,   # hidden_derivative
-                             1e-7])  # jerk on hand path
+    loss_weights = np.array([1e+3,  # position
+                            1e-1,   # muscle
+                            3e-4,   # muscle_derivative
+                            1e-5,   # hidden
+                            1e-3,   # hidden_derivative
+                            1e+5])  # jerk on hand path
 
     # go(model_name   = model_name, 
     #    n_batch      = n_batch, 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     #    n_hidden     = n_hidden,
     #    loss_weights = loss_weights)
 
-    jerk_weights = [0,0,0,1e-10,1e-10,1e-10,5e-10,5e-10,5e-10,1e-9,1e-9,1e-9]
+    jerk_weights = [1e5, 1e5, 1e5]
     lw = [loss_weights.copy() for _ in range(len(jerk_weights))]
     for idx,jw in enumerate(jerk_weights):
         lw[idx][5] = jw
