@@ -24,7 +24,7 @@ print('motornet version: ' + mn.__version__)
 
 device = th.device("cpu")
 
-th._dynamo.config.cache_size_limit = 16 * 1024 ** 3  # 16 GB
+th._dynamo.config.cache_size_limit = 64 * 1024 ** 3  # 64 GB
 
 def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128, loss_weights=None):
 
@@ -75,10 +75,10 @@ def go(model_name, n_batch=20000, batch_size=256, interval=250, n_hidden=128, lo
             with open(model_name + "/" + model_name + '_data.pkl', 'wb') as f:
                 pickle.dump(data, f)
             print_losses(losses_weighted=losses_weighted, model_name=model_name, batch=batch)
-            data, _ = test(cfg_file  = model_name + "/" + model_name + "_cfg.json",
-                        weight_file  = model_name + "/" + model_name + "_weights",
-                        loss_weights = loss_weights)
-            plot_stuff(data, model_name + "/" + model_name, batch=batch)
+            # data, _ = test(cfg_file  = model_name + "/" + model_name + "_cfg.json",
+            #             weight_file  = model_name + "/" + model_name + "_weights",
+            #             loss_weights = loss_weights)
+            # plot_stuff(data, model_name + "/" + model_name, batch=batch)
 
         # Update loss values in the dictionary
         losses['overall'].append(loss.item())
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     #    n_hidden     = n_hidden,
     #    loss_weights = loss_weights)
 
-    jerk_weights = [1e5, 1e5, 1e5]
+    jerk_weights = [1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 1e5]
     lw = [loss_weights.copy() for _ in range(len(jerk_weights))]
     for idx,jw in enumerate(jerk_weights):
         lw[idx][5] = jw
